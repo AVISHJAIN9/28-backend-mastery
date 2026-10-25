@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><title>Preview: WebSockets / Socket.io</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
+<style>
+  :root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3e;--text:#e2e8f0;--muted:#64748b;--accent:#22c55e;--red:#ef4444;--amber:#f59e0b;--font:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);padding:20px;min-height:100vh;}
+  .wrap{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .full{grid-column:1/-1;}
+  h2{font-size:12px;font-weight:700;margin-bottom:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:10px;}
+  input{width:100%;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;}
+  button{padding:8px 16px;border:none;border-radius:6px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  button:hover{opacity:.85;}
+  .btn-green{background:var(--accent);color:#000;}
+  .btn-red{background:var(--red);color:#fff;}
+  .btn-amber{background:var(--amber);color:#000;}
+  .status{display:flex;align-items:center;gap:8px;padding:10px;border-radius:6px;background:#0f1117;border:1px solid var(--border);font-size:12px;margin-bottom:12px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+  .dot.connected{background:var(--accent);box-shadow:0 0 8px var(--accent);}
+  .log{background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:12px;height:220px;overflow-y:auto;font-size:11px;}
+  .log-line{padding:3px 0;border-bottom:1px solid var(--border);word-break:break-all;}
+  .log-in{color:var(--accent);}
+  .log-out{color:var(--amber);}
+  .log-sys{color:var(--muted);}
+  .log-err{color:var(--red);}
+  .chat-messages{height:200px;overflow-y:auto;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;margin-bottom:10px;}
+  .msg{padding:4px 0;border-bottom:1px solid var(--border);}
+  .msg-from{color:var(--accent);}
+  .msg-text{color:var(--text);}
+  .send-row{display:flex;gap:8px;}
+  .send-row input{flex:1;margin:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card full" style="display:flex;align-items:center;gap:12px;padding:14px;">
+    <span style="font-size:11px;color:var(--muted);white-space:nowrap">SOCKET SERVER</span>
+    <input id="serverUrl" value="http://localhost:5000" style="flex:1;margin:0;">
+    <input id="socketToken" placeholder="JWT token (optional)" style="flex:1;margin:0;font-size:11px;">
+    <button class="btn-green" onclick="connect()">Connect</button>
+    <button class="btn-red" onclick="disconnect_()">Disconnect</button>
+  </div>
+
+  <div class="card">
+    <h2>📡 Connection Status</h2>
+    <div class="status"><div class="dot" id="connDot"></div><span id="connText">Disconnected</span><span id="socketId" style="margin-left:auto;font-size:10px;color:var(--muted)"></span></div>
+    <h2 style="margin-top:12px;">📋 Event Log</h2>
+    <div class="log" id="eventLog"></div>
+  </div>
+
+  <div class="card">
+    <h2>💬 Chat Room Test</h2>
+    <label>Room name</label>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input id="roomName" value="general" style="margin:0;flex:1;">
+      <button class="btn-amber" onclick="joinRoom()">Join</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="send-row">
+      <input id="msgText" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="btn-green" onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📤 Emit Custom Event</h2>
+    <label>Event name</label>
+    <input id="customEvent" value="ping">
+    <label>Payload (JSON)</label>
+    <input id="customPayload" value='{"message":"hello"}'>
+    <button class="btn-amber" style="margin-top:12px;" onclick="emitCustom()">Emit →</button>
+  </div>
+
+  <div class="card">
+    <h2>👥 Presence / Typing Indicator</h2>
+    <label>Username</label>
+    <input id="username" value="avish" oninput="updateTyping()">
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="btn-green" onclick="startTyping()">Start Typing</button>
+      <button class="btn-red" onclick="stopTyping()">Stop Typing</button>
+    </div>
+    <div id="typingIndicator" style="margin-top:10px;font-size:11px;color:var(--muted);min-height:20px;"></div>
+  </div>
+</div>
+
+<script>
+  let socket = null;
+  function log(msg, type='sys'){
+    const el=document.getElementById('eventLog');
+    const d=new Date().toLocaleTimeString();
+    el.innerHTML += `<div class="log-line log-${type}">[${d}] ${msg}</div>`;
+    el.scrollTop=el.scrollHeight;
+  }
+
+  function connect(){
+    const url=document.getElementById('serverUrl').value;
+    const token=document.getElementById('socketToken').value;
+    if(socket) socket.disconnect();
+    const opts={transports:['websocket','polling']};
+    if(token) opts.auth={token};
+    socket=io(url,opts);
+    socket.on('connect',()=>{
+      document.getElementById('connDot').className='dot connected';
+      document.getElementById('connText').textContent='Connected';
+      document.getElementById('socketId').textContent='ID: '+socket.id;
+      log('Connected! Socket ID: '+socket.id,'in');
+    });
+    socket.on('disconnect',()=>{
+      document.getElementById('connDot').className='dot';
+      document.getElementById('connText').textContent='Disconnected';
+      log('Disconnected','err');
+    });
+    socket.on('connect_error',e=>{log('Connection error: '+e.message,'err');});
+    socket.on('message',(d)=>{log('message: '+JSON.stringify(d),'in');addChatMsg('Server',d.text||JSON.stringify(d));});
+    socket.on('chat',(d)=>{log('chat: '+JSON.stringify(d),'in');addChatMsg(d.from||'Unknown',d.text||d.message||JSON.stringify(d));});
+    socket.on('pong',(d)=>{log('pong: '+JSON.stringify(d),'in');});
+    socket.on('typing',(d)=>{document.getElementById('typingIndicator').textContent=(d.username||'Someone')+' is typing…';});
+    socket.on('stop_typing',()=>{document.getElementById('typingIndicator').textContent='';});
+    socket.onAny((event,data)=>{if(!['message','chat','pong','typing','stop_typing'].includes(event))log(`${event}: ${JSON.stringify(data)}`,'in');});
+  }
+
+  function disconnect_(){if(socket)socket.disconnect();socket=null;}
+
+  function joinRoom(){
+    if(!socket){log('Not connected','err');return;}
+    const room=document.getElementById('roomName').value;
+    socket.emit('join',{room});
+    log(`Emitted join room: ${room}`,'out');
+  }
+
+  function sendMsg(){
+    if(!socket){log('Not connected','err');return;}
+    const text=document.getElementById('msgText').value;
+    const room=document.getElementById('roomName').value;
+    socket.emit('chat',{room,text,from:document.getElementById('username').value});
+    addChatMsg('You ('+document.getElementById('username').value+')',text);
+    log(`Emitted chat: ${text}`,'out');
+    document.getElementById('msgText').value='';
+  }
+
+  function emitCustom(){
+    if(!socket){log('Not connected','err');return;}
+    const event=document.getElementById('customEvent').value;
+    try{const payload=JSON.parse(document.getElementById('customPayload').value);socket.emit(event,payload);log(`Emitted ${event}: ${JSON.stringify(payload)}`,'out');}
+    catch{log('Invalid JSON payload','err');}
+  }
+
+  function startTyping(){
+    if(!socket)return;
+    socket.emit('typing',{username:document.getElementById('username').value,room:document.getElementById('roomName').value});
+    log('Emitted: typing','out');
+  }
+
+  function stopTyping(){
+    if(!socket)return;
+    socket.emit('stop_typing',{room:document.getElementById('roomName').value});
+    log('Emitted: stop_typing','out');
+  }
+
+  function addChatMsg(from,text){
+    const el=document.getElementById('chatMessages');
+    el.innerHTML+=`<div class="msg"><span class="msg-from">${from}:</span> <span class="msg-text">${text}</span></div>`;
+    el.scrollTop=el.scrollHeight;
+  }
+</script>
+</body></html>

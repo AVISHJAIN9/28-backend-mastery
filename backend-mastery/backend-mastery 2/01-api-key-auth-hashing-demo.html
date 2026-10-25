@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>API Key Auth</title>
+<style>
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: Segoe UI; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 500px; }
+  h1 { text-align: center; color: #333; margin-bottom: 30px; }
+  .key-display { background: #f0f0f0; padding: 15px; border-radius: 6px; font-family: monospace; word-break: break-all; margin-bottom: 15px; }
+  button { width: 100%; padding: 10px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin: 5px 0; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>🔑 API Key Authentication</h1>
+  <h3>Generated API Key:</h3>
+  <div class="key-display" id="key">sk_live_51234567890abcdefghijk</div>
+  <button onclick="generateKey()">🔄 Generate New Key</button>
+  <button onclick="copyKey()">📋 Copy Key</button>
+  <button onclick="revokeKey()">❌ Revoke Key</button>
+  <div id="status" style="margin-top: 20px; padding: 10px; background: #d4edda; border-radius: 6px; display: none;"></div>
+</div>
+<script>
+  function generateKey() { const key = 'sk_' + Math.random().toString(36).substr(2, 20); document.getElementById('key').textContent = key; document.getElementById('status').style.display = 'block'; document.getElementById('status').textContent = '✅ New key generated'; }
+  function copyKey() { navigator.clipboard.writeText(document.getElementById('key').textContent); alert('Copied!'); }
+  function revokeKey() { alert('❌ API Key revoked'); }
+</script>
+</body></html>

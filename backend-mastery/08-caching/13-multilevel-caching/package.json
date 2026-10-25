@@ -1,0 +1,39 @@
+{
+  "name": "13-multilevel-caching",
+  "version": "1.0.0",
+  "description": "Multi-tier caching: L1 in-memory, L2 Redis, L3 database with request routing and hit ratio monitoring",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build needed for development'",
+    "test": "echo 'Add tests here'"
+  },
+  "keywords": [
+    "redis",
+    "cache",
+    "multilevel",
+    "l1-l2-l3",
+    "cache-hierarchy",
+    "in-memory",
+    "distributed",
+    "hit-ratio"
+  ],
+  "author": "Backend Mastery",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "redis": "^4.6.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

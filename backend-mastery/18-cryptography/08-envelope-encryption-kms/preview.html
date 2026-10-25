@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>envelope encryption kms - Interactive Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Monaco', monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    h1 { color: #4ec9b0; margin: 20px 0; }
+    .tool { background: #252526; padding: 20px; margin: 20px 0; border-left: 4px solid #007acc; }
+    .input-group { margin: 15px 0; }
+    label { display: block; color: #9cdcfe; margin-bottom: 5px; font-weight: bold; }
+    input, textarea { width: 100%; padding: 8px; background: #1e1e1e; color: #d4d4d4; border: 1px solid #3e3e42; border-radius: 4px; font-family: inherit; }
+    button { background: #007acc; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+    button:hover { background: #005a9e; }
+    .output { background: #1e1e1e; border: 1px solid #3e3e42; padding: 15px; margin-top: 10px; max-height: 200px; overflow-y: auto; border-radius: 4px; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    .success { color: #4ec9b0; }
+    .error { color: #f48771; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 envelope encryption kms - Interactive Preview</h1>
+    
+    <div class="tool">
+      <h2>Test API Endpoints</h2>
+      <button onclick="testEndpoint('/api/info')">Get Info</button>
+      <button onclick="testEndpoint('/api/test')">Test Endpoint</button>
+      <div id="output" class="output" style="display:none;"></div>
+    </div>
+
+    <div class="tool">
+      <h2>Documentation</h2>
+      <ul>
+        <li><a href="README.md" style="color: #9cdcfe;">📖 README</a></li>
+        <li><a href="theory.md" style="color: #9cdcfe;">📚 Theory</a></li>
+        <li><a href="setup.md" style="color: #9cdcfe;">⚙️ Setup</a></li>
+        <li><a href="checklist.md" style="color: #9cdcfe;">✓ Checklist</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    async function testEndpoint(endpoint) {
+      const output = document.getElementById('output');
+      try {
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        output.innerHTML = '<span class="success">✓ Success</span>\n\n<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        output.style.display = 'block';
+      } catch (err) {
+        output.innerHTML = '<span class="error">Error: ' + err.message + '</span>';
+        output.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

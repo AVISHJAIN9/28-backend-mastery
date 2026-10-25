@@ -1,0 +1,1 @@
+module.exports = { sseAuth: (req,res,next) => { const uid = req.query.uid; if(!uid) return res.status(401).json({error:'UID required'}); req.userId = uid; next(); } };

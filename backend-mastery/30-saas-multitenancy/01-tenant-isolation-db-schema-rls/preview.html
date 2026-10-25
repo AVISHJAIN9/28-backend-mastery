@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenant Isolation & RLS Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 40px 20px;
+    }
+
+    section {
+      margin-bottom: 40px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 25px;
+    }
+
+    section h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    select, input, textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1em;
+      font-family: inherit;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea {
+      grid-column: 1 / -1;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    thead {
+      background: #f5f5f5;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    tbody tr:hover {
+      background: #fafafa;
+    }
+
+    .alert {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .alert-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-left: 4px solid #4caf50;
+    }
+
+    .alert-error {
+      background: #ffebee;
+      color: #c62828;
+      border-left: 4px solid #f44336;
+    }
+
+    .alert-info {
+      background: #e3f2fd;
+      color: #1565c0;
+      border-left: 4px solid #2196f3;
+    }
+
+    .user-badge {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 5px;
+      background: #4caf50;
+    }
+
+    footer {
+      background: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+      color: #666;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .security-notes {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+    }
+
+    .security-notes ul {
+      margin-left: 20px;
+    }
+
+    .security-notes li {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔒 Tenant Isolation & RLS</h1>
+      <p>PostgreSQL Row-Level Security in Action</p>
+    </header>
+
+    <div class="content">
+      <!-- Authentication Section -->
+      <section id="auth-section">
+        <h2>🔐 Authentication & Login</h2>
+        <div class="form-group">
+          <div>
+            <label for="user-select">Select User:</label>
+            <select id="user-select">
+              <option value="user-1">Alice (Acme Corp - Admin)</option>
+              <option value="user-2">Bob (Acme Corp - Member)</option>
+              <option value="user-3">Charlie (Beta Inc - Admin)</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="login()">Login</button>
+        </div>
+
+        <div id="auth-status" style="margin-top: 20px;"></div>
+      </section>
+
+      <!-- Tenant Operations -->
+      <section id="tenant-section">
+        <h2>📋 Tenant Operations</h2>
+        <div class="button-group">
+          <button class="btn-primary" onclick="getTenantInfo()">Get Tenant Info</button>
+          <button class="btn-primary" onclick="fetchTenantUsers()">Get Users</button>
+          <button class="btn-primary" onclick="testRLS()">Test RLS</button>
+        </div>
+
+        <div id="users-display" style="margin-top: 20px;"></div>
+        <div id="tenant-display" style="margin-top: 20px;"></div>
+      </section>
+
+      <!-- Documents Section -->
+      <section id="documents-section">
+        <h2>📄 Document Management</h2>
+        
+        <div class="form-group">
+          <input type="text" id="doc-title" placeholder="Document title">
+          <textarea id="doc-content" placeholder="Document content" style="grid-column: 1 / -1;"></textarea>
+        </div>
+
+        <div class="button-group">
+          <button class="btn-primary" onclick="createDocument()">Create Document</button>
+          <button class="btn-secondary" onclick="fetchDocuments()">Refresh List</button>
+        </div>
+
+        <div id="documents-display" style="margin-top: 20px;"></div>
+      </section>
+
+      <!-- Security Notes -->
+      <section class="security-notes">
+        <h2>🔐 Security Implementation</h2>
+        <ul>
+          <li><strong>Data Isolation:</strong> Alice & Bob (Acme) can only see their company's documents. Charlie (Beta) cannot access them.</li>
+          <li><strong>Database Enforcement:</strong> RLS policies in PostgreSQL prevent data leaks even if application code fails.</li>
+          <li><strong>Tenant Extraction:</strong> Tenant ID comes from JWT token, validated at database level.</li>
+          <li><strong>RLS Test:</strong> Verifies all returned data belongs to current tenant's tenant_id.</li>
+          <li><strong>Cascading Deletion:</strong> Deleting a tenant removes all associated data automatically.</li>
+        </ul>
+      </section>
+
+      <!-- Response Display -->
+      <section id="response-section" style="display: none;">
+        <h2>📡 API Response</h2>
+        <pre id="response-display" style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;"></pre>
+      </section>
+    </div>
+
+    <footer>
+      Made with ❤️ for Backend Mastery | Module: Tenant Isolation & RLS
+    </footer>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:4001';
+    let token = null;
+    let currentUser = null;
+
+    async function login() {
+      const userId = document.getElementById('user-select').value;
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          token = data.token;
+          currentUser = data.user;
+          showAlert(`✅ Logged in as <strong>${data.user.name}</strong> (${data.user.tenant_id})`, 'success');
+          displayAuthStatus();
+        } else {
+          showAlert(`❌ ${data.error}`, 'error');
+        }
+      } catch (error) {
+        showAlert(`❌ ${error.message}`, 'error');
+      }
+    }
+
+    async function fetchDocuments() {
+      if (!token) return showAlert('Please login first', 'error');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/documents`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          displayDocuments(data);
+          showAlert(`Retrieved ${data.length} documents`, 'success');
+        } else {
+          showAlert(`Error: ${data.error}`, 'error');
+        }
+      } catch (error) {
+        showAlert(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function createDocument() {
+      if (!token) return showAlert('Please login first', 'error');
+
+      const title = document.getElementById('doc-title').value;
+      const content = document.getElementById('doc-content').value;
+
+      if (!title) return showAlert('Title required', 'error');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/documents`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ title, content })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          document.getElementById('doc-title').value = '';
+          document.getElementById('doc-content').value = '';
+          showAlert('Document created successfully', 'success');
+          fetchDocuments();
+        } else {
+          showAlert(`Error: ${data.error}`, 'error');
+        }
+      } catch (error) {
+        showAlert(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function fetchTenantUsers() {
+      if (!token) return showAlert('Please login first', 'error');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/users`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          displayUsers(data);
+          showAlert(`Retrieved ${data.length} users`, 'success');
+        } else {
+          showAlert(`Error: ${data.error}`, 'error');
+        }
+      } catch (error) {
+        showAlert(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function getTenantInfo() {
+      if (!token) return showAlert('Please login first', 'error');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/tenant/info`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          displayTenantInfo(data);
+          showAlert('Tenant info retrieved', 'success');
+        } else {
+          showAlert(`Error: ${data.error}`, 'error');
+        }
+      } catch (error) {
+        showAlert(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function testRLS() {
+      if (!token) return showAlert('Please login first', 'error');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/test/rls`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          const message = data.rls_working 
+            ? '✅ RLS is working! All documents belong to your tenant.' 
+            : '❌ RLS may be broken! Found documents from other tenants.';
+          showAlert(message, data.rls_working ? 'success' : 'error');
+          displayResponse(data);
+        } else {
+          showAlert(`Error: ${data.error}`, 'error');
+        }
+      } catch (error) {
+        showAlert(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    function displayAuthStatus() {
+      const html = `
+        <div class="alert alert-success">
+          <span class="status-dot"></span>
+          Authenticated as <span class="user-badge">${currentUser.name}</span>
+          <br>
+          Tenant: <strong>${currentUser.tenant_id}</strong> | Token: ${token.substring(0, 20)}...
+        </div>
+      `;
+      document.getElementById('auth-status').innerHTML = html;
+    }
+
+    function displayDocuments(docs) {
+      if (docs.length === 0) {
+        document.getElementById('documents-display').innerHTML = '<p>No documents found. Create one!</p>';
+        return;
+      }
+
+      let html = '<table><thead><tr><th>Title</th><th>Owner</th><th>Created</th></tr></thead><tbody>';
+      docs.forEach(doc => {
+        const date = new Date(doc.created_at).toLocaleDateString();
+        html += `<tr><td>${doc.title}</td><td>${doc.owner_name}</td><td>${date}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('documents-display').innerHTML = html;
+    }
+
+    function displayUsers(users) {
+      if (users.length === 0) {
+        document.getElementById('users-display').innerHTML = '<p>No users found</p>';
+        return;
+      }
+
+      let html = '<h3 style="margin-top: 20px; color: #667eea;">Tenant Users</h3><table><thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody>';
+      users.forEach(user => {
+        html += `<tr><td>${user.name}</td><td>${user.email}</td><td><strong>${user.role}</strong></td></tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('users-display').innerHTML = html;
+    }
+
+    function displayTenantInfo(info) {
+      const html = `
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin-top: 20px;">
+          <p><strong>Name:</strong> ${info.name}</p>
+          <p><strong>Subdomain:</strong> ${info.subdomain}</p>
+          <p><strong>Plan:</strong> ${info.plan}</p>
+          <p><strong>ID:</strong> ${info.id}</p>
+          <p><strong>Created:</strong> ${new Date(info.created_at).toLocaleDateString()}</p>
+        </div>
+      `;
+      document.getElementById('tenant-display').innerHTML = html;
+    }
+
+    function displayResponse(data) {
+      document.getElementById('response-section').style.display = 'block';
+      document.getElementById('response-display').textContent = JSON.stringify(data, null, 2);
+    }
+
+    function showAlert(message, type) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alert alert-${type}`;
+      alertDiv.innerHTML = message;
+      
+      const authStatus = document.getElementById('auth-status');
+      authStatus.insertBefore(alertDiv, authStatus.firstChild);
+      
+      setTimeout(() => alertDiv.remove(), 5000);
+    }
+  </script>
+</body>
+</html>
+

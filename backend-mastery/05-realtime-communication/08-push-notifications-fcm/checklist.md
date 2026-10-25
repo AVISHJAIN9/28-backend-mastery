@@ -1,0 +1,8 @@
+- [ ] Set up Firebase project
+- [ ] Download service account key
+- [ ] Initialize Admin SDK
+- [ ] Get device tokens
+- [ ] Implement notification sending
+- [ ] Add local notifications
+- [ ] Test on iOS/Android
+- [ ] Monitor delivery rates

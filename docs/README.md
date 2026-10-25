@@ -1,0 +1,17 @@
+# 34-backend-mastery Documentation
+
+Welcome to the comprehensive technical documentation for **Backend Mastery: Production-Grade Distributed Systems Architecture**.
+
+## Quick Links
+- [00. Project Type](./00-project-type.md)
+- [00a. Full Project Analysis](./00a-project-analysis.md)
+- [00b. Project Pitch](./00b-project-pitch.md)
+- [01. Feature Inventory](./01-features.md)
+- [03. API Reference](./03-api-reference.md)
+- [04. Tech Comparisons](./04-tech-comparisons.md)
+- [05. Architecture & Internals](./05-architecture.md)
+- [06. Security Hardening](./06-security.md)
+- [09. Interview Q&A](./09-interview-qa.md)
+- [13. Master Checklist](./13-master-checklist.md)
+- [14. Say It Out Loud](./14-say-it-out-loud.md)
+- [System Design Deep Dive](./system-design/)

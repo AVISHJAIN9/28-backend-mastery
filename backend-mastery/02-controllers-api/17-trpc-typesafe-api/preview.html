@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>tRPC Typesafe API Demo</title>
+	<style>
+		body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+		.container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+		h1 { color: #3b82f6; }
+		input, button { padding: 10px; margin: 8px 0; width: 100%; border-radius: 4px; border: 1px solid #ddd; }
+		button { background: #3b82f6; color: #fff; border: none; cursor: pointer; }
+		.result { background: #e0f7fa; padding: 12px; border-radius: 4px; margin-top: 16px; word-break: break-all; }
+		.error { background: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-top: 16px; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>tRPC Call Demo</h1>
+		<form id="trpcForm">
+			<label>Procedure Name:</label>
+			<input type="text" id="proc" placeholder="getUser" required />
+			<label>Input (JSON):</label>
+			<input type="text" id="input" placeholder='{"id":1}' />
+			<button type="submit">Call Procedure</button>
+		</form>
+		<div id="output"></div>
+	</div>
+	<script>
+		document.getElementById('trpcForm').onsubmit = async function(e) {
+			e.preventDefault();
+			const proc = document.getElementById('proc').value;
+			let input;
+			try { input = JSON.parse(document.getElementById('input').value || '{}'); } catch (e) { input = {}; }
+			const output = document.getElementById('output');
+			output.innerHTML = '';
+			try {
+				const res = await fetch('/api/trpc', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ proc, input })
+				});
+				const data = await res.json();
+				if (res.ok && data.result) {
+					output.innerHTML = `<div class='result'><strong>Result:</strong><br>${JSON.stringify(data.result)}</div>`;
+				} else {
+					output.innerHTML = `<div class='error'>${data.error || 'tRPC call failed.'}</div>`;
+				}
+			} catch (err) {
+				output.innerHTML = `<div class='error'>${err.message}</div>`;
+			}
+		};
+	</script>
+</body>
+</html>
+

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>OAuth2 Demo</title>
+<style>
+  body { background: #1a1a1a; color: white; font-family: Segoe UI; padding: 40px; text-align: center; }
+  .flow { background: #2a2a2a; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+  button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+  button:hover { background: #45a049; }
+  .step { margin: 10px 0; padding: 10px; background: #3a3a3a; border-radius: 5px; }
+</style>
+</head>
+<body>
+<h1>🔐 OAuth2 Authorization Flow</h1>
+<div class="flow">
+  <h2>Google Login</h2>
+  <button onclick="startOAuth()">Sign in with Google</button>
+  <div class="step" id="status">Click button to start</div>
+</div>
+<script>
+  function startOAuth() {
+    const steps = [
+      '1️⃣ Redirecting to OAuth provider...',
+      '2️⃣ User grants permission...',
+      '3️⃣ Authorization code received...',
+      '4️⃣ Exchanging code for token...',
+      '✅ Login successful!'
+    ];
+    let i = 0;
+    function next() {
+      if (i < steps.length) {
+        document.getElementById('status').textContent = steps[i];
+        i++;
+        setTimeout(next, 800);
+      }
+    }
+    next();
+  }
+</script>
+</body></html>

@@ -1,0 +1,38 @@
+{
+  "name": "09-cache-stampede-prevention",
+  "version": "1.0.0",
+  "description": "Cache stampede prevention strategies: XFetch, distributed locks, and stale-while-revalidate",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build needed for development'",
+    "test": "echo 'Add tests here'"
+  },
+  "keywords": [
+    "redis",
+    "cache",
+    "stampede",
+    "thundering-herd",
+    "xfetch",
+    "distributed-locks",
+    "stale-while-revalidate"
+  ],
+  "author": "Backend Mastery",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "redis": "^4.6.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

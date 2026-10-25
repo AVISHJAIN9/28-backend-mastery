@@ -1,0 +1,142 @@
+version: '3.8'
+
+services:
+  http1-http2-http3:
+    build:
+      context: ./01-http1-http2-http3
+      dockerfile: Dockerfile
+    ports:
+      - "5801:5801"
+    environment:
+      - HTTP_PORT=5801
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./01-http1-http2-http3:/app
+    command: npm run dev
+
+  tcp-vs-udp:
+    build:
+      context: ./02-tcp-vs-udp
+      dockerfile: Dockerfile
+    ports:
+      - "5802:5802"
+    environment:
+      - HTTP_PORT=5802
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./02-tcp-vs-udp:/app
+    command: npm run dev
+
+  tls-handshake:
+    build:
+      context: ./03-tls-handshake-https
+      dockerfile: Dockerfile
+    ports:
+      - "5803:5803"
+    environment:
+      - HTTP_PORT=5803
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./03-tls-handshake-https:/app
+    command: npm run dev
+
+  http-headers:
+    build:
+      context: ./04-http-headers-deep
+      dockerfile: Dockerfile
+    ports:
+      - "5804:5804"
+    environment:
+      - HTTP_PORT=5804
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./04-http-headers-deep:/app
+    command: npm run dev
+
+  status-codes:
+    build:
+      context: ./05-status-codes-all-families
+      dockerfile: Dockerfile
+    ports:
+      - "5805:5805"
+    environment:
+      - HTTP_PORT=5805
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./05-status-codes-all-families:/app
+    command: npm run dev
+
+  dns:
+    build:
+      context: ./06-dns-how-it-resolves
+      dockerfile: Dockerfile
+    ports:
+      - "5806:5806"
+    environment:
+      - HTTP_PORT=5806
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./06-dns-how-it-resolves:/app
+    command: npm run dev
+
+  proxy:
+    build:
+      context: ./07-proxy-vs-reverse-proxy
+      dockerfile: Dockerfile
+    ports:
+      - "5807:5807"
+    environment:
+      - HTTP_PORT=5807
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./07-proxy-vs-reverse-proxy:/app
+    command: npm run dev
+
+  cdn:
+    build:
+      context: ./08-cdn-how-it-works
+      dockerfile: Dockerfile
+    ports:
+      - "5808:5808"
+    environment:
+      - HTTP_PORT=5808
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./08-cdn-how-it-works:/app
+    command: npm run dev
+
+  keep-alive:
+    build:
+      context: ./09-keep-alive-connections
+      dockerfile: Dockerfile
+    ports:
+      - "5809:5809"
+    environment:
+      - HTTP_PORT=5809
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./09-keep-alive-connections:/app
+    command: npm run dev
+
+  content-negotiation:
+    build:
+      context: ./10-content-negotiation
+      dockerfile: Dockerfile
+    ports:
+      - "5810:5810"
+    environment:
+      - HTTP_PORT=5810
+      - NODE_ENV=development
+    working_dir: /app
+    volumes:
+      - ./10-content-negotiation:/app
+    command: npm run dev

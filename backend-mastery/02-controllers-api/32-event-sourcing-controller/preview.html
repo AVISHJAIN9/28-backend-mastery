@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Sourcing Demo</title>
+  <style>
+    body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1 { color: #3b82f6; }
+    input, textarea, button { padding: 10px; margin: 8px 0; width: 100%; border-radius: 4px; border: 1px solid #ddd; box-sizing: border-box; }
+    button { background: #3b82f6; color: #fff; border: none; cursor: pointer; }
+    .result { background: #e0f7fa; padding: 12px; border-radius: 4px; margin-top: 16px; word-break: break-all; max-height: 400px; overflow-y: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Event Sourcing Demo</h1>
+    <input type="text" id="aggregateId" placeholder="Aggregate ID" />
+    <input type="text" id="eventType" placeholder="Event Type (e.g., AccountCreated)" />
+    <textarea id="eventData" placeholder="Event Data (JSON)" style="height: 100px;">{}</textarea>
+    <button onclick="createEvent()">Create Event</button>
+    <button onclick="getAggregate()">Get Current State</button>
+    <div class="result" id="output"></div>
+  </div>
+  <script>
+    function createEvent() {
+      const aggregateId = document.getElementById('aggregateId').value;
+      const eventType = document.getElementById('eventType').value;
+      const eventData = JSON.parse(document.getElementById('eventData').value || '{}');
+      
+      fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ aggregate_id: aggregateId, type: eventType, data: eventData })
+      }).then(r => r.json()).then(d => {
+        document.getElementById('output').textContent = 'Event Created: ' + JSON.stringify(d);
+      }).catch(e => document.getElementById('output').textContent = 'Error: ' + e.message);
+    }
+    
+    function getAggregate() {
+      const aggregateId = document.getElementById('aggregateId').value;
+      fetch(`/api/aggregate/${aggregateId}`)
+        .then(r => r.json())
+        .then(d => document.getElementById('output').textContent = 'Current State: ' + JSON.stringify(d))
+        .catch(e => document.getElementById('output').textContent = 'Error: ' + e.message);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>20 - Performance Monitoring</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+    .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .header p { font-size: 1.1em; opacity: 0.9; }
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      padding: 40px;
+    }
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .section h2 {
+      color: #333;
+      font-size: 1.3em;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0); }
+    .metrics-box {
+      background: #f0f9ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e0e7ff;
+    }
+    .metric:last-child { border-bottom: none; }
+    .metric-label { font-weight: 600; color: #555; }
+    .metric-value { font-family: monospace; color: #667eea; }
+    .response-box {
+      background: #f5f5f5;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 13px;
+      max-height: 250px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success { border-left-color: #10b981; }
+    .error { border-left-color: #ef4444; }
+    @media (max-width: 768px) {
+      .content { grid-template-columns: 1fr; }
+      .header h1 { font-size: 1.8em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Performance Monitoring</h1>
+      <p>Track request metrics and performance indicators</p>
+    </div>
+    
+    <div class="content">
+      <div class="section">
+        <h2>Monitor Requests</h2>
+        
+        <label>Endpoint:</label>
+        <select id="endpoint">
+          <option value="http://localhost:4020/api/fast">GET /api/fast (Fast)</option>
+          <option value="http://localhost:4020/api/slow">GET /api/slow (Slow - 2s)</option>
+          <option value="http://localhost:4020/api/metrics">GET /api/metrics</option>
+          <option value="http://localhost:4020/health">GET /health</option>
+        </select>
+        
+        <label>Number of Requests:</label>
+        <input type="number" id="requestCount" value="1" min="1" max="20">
+        
+        <button onclick="sendRequests()">Send Request(s)</button>
+        <button onclick="clearMetrics()" style="background: #ef4444; margin-top: 10px;">Clear Metrics</button>
+      </div>
+      
+      <div class="section">
+        <h2>Performance Metrics</h2>
+        <div class="metrics-box">
+          <div class="metric">
+            <span class="metric-label">Total Requests:</span>
+            <span class="metric-value" id="totalRequests">0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Avg Response Time:</span>
+            <span class="metric-value" id="avgTime">0ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Min Response Time:</span>
+            <span class="metric-value" id="minTime">0ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Max Response Time:</span>
+            <span class="metric-value" id="maxTime">0ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Successful Responses:</span>
+            <span class="metric-value" id="successCount">0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Failed Responses:</span>
+            <span class="metric-value" id="errorCount">0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Success Rate:</span>
+            <span class="metric-value" id="successRate">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="grid-column: 1 / -1;">
+        <h2>Last Response</h2>
+        <div id="response" class="response-box">
+          Waiting for request...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let metrics = {
+      totalRequests: 0,
+      responseTimes: [],
+      successCount: 0,
+      errorCount: 0
+    };
+
+    function updateMetricsDisplay() {
+      document.getElementById('totalRequests').textContent = metrics.totalRequests;
+      
+      if (metrics.responseTimes.length > 0) {
+        const avg = Math.round(metrics.responseTimes.reduce((a, b) => a + b, 0) / metrics.responseTimes.length);
+        const min = Math.min(...metrics.responseTimes);
+        const max = Math.max(...metrics.responseTimes);
+        
+        document.getElementById('avgTime').textContent = avg + 'ms';
+        document.getElementById('minTime').textContent = min + 'ms';
+        document.getElementById('maxTime').textContent = max + 'ms';
+      }
+      
+      document.getElementById('successCount').textContent = metrics.successCount;
+      document.getElementById('errorCount').textContent = metrics.errorCount;
+      
+      const rate = metrics.totalRequests > 0 
+        ? Math.round((metrics.successCount / metrics.totalRequests) * 100) 
+        : 0;
+      document.getElementById('successRate').textContent = rate + '%';
+    }
+
+    async function sendRequests() {
+      const endpoint = document.getElementById('endpoint').value;
+      const count = parseInt(document.getElementById('requestCount').value) || 1;
+      const responseDiv = document.getElementById('response');
+      
+      for (let i = 0; i < count; i++) {
+        try {
+          const startTime = performance.now();
+          
+          const response = await fetch(endpoint);
+          const endTime = performance.now();
+          const duration = Math.round(endTime - startTime);
+          
+          const data = await response.json();
+          
+          metrics.totalRequests++;
+          metrics.responseTimes.push(duration);
+          
+          if (response.status < 400) {
+            metrics.successCount++;
+          } else {
+            metrics.errorCount++;
+          }
+          
+          responseDiv.className = 'response-box ' + (response.status >= 400 ? 'error' : 'success');
+          responseDiv.textContent = JSON.stringify({
+            status: response.status,
+            responseTime: duration + 'ms',
+            timestamp: new Date().toISOString(),
+            data: data
+          }, null, 2);
+          
+          updateMetricsDisplay();
+          
+          // Small delay between requests
+          if (i < count - 1) {
+            await new Promise(r => setTimeout(r, 100));
+          }
+        } catch (error) {
+          metrics.totalRequests++;
+          metrics.errorCount++;
+          
+          responseDiv.className = 'response-box error';
+          responseDiv.textContent = 'Error: ' + error.message;
+          
+          updateMetricsDisplay();
+        }
+      }
+    }
+
+    function clearMetrics() {
+      metrics = {
+        totalRequests: 0,
+        responseTimes: [],
+        successCount: 0,
+        errorCount: 0
+      };
+      updateMetricsDisplay();
+      document.getElementById('response').textContent = 'Metrics cleared. Waiting for new requests...';
+    }
+  </script>
+</body>
+</html>

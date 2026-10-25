@@ -1,0 +1,1 @@
+module.exports = { presenceMiddleware: (socket, next) => { socket.userId = socket.handshake.query.userId; next(); } };

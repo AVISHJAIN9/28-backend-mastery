@@ -1,0 +1,8 @@
+- [ ] Set up Resend account
+- [ ] Get API key
+- [ ] Create email templates
+- [ ] Implement queue
+- [ ] Add retry logic
+- [ ] Test email delivery
+- [ ] Monitor bounce/spam
+- [ ] Set up unsubscribe

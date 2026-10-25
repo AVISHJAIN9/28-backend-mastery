@@ -1,0 +1,1 @@
+module.exports = { queueMiddleware: (req, res, next) => { req.queue = req.app.locals.queue; next(); } };

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 02: Email Queuing & Async Retry - Preview</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .section {
+      background: white;
+      padding: 30px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    h3 {
+      color: #555;
+      margin: 20px 0 15px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      background: #f9f9f9;
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .card h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95em;
+      line-height: 1.5;
+    }
+
+    .code-block pre {
+      margin: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #f0f0f0;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #f9f9f9;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: #c6f6d5;
+      color: #22863a;
+    }
+
+    .badge-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-danger {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-list li {
+      padding: 10px 0;
+      padding-left: 30px;
+      position: relative;
+    }
+
+    .feature-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #48bb78;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .endpoint {
+      background: #f0f0f0;
+      padding: 15px;
+      border-left: 4px solid #667eea;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    .endpoint strong {
+      color: #667eea;
+      font-family: 'Courier New', monospace;
+    }
+
+    .api-doc {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+
+    .api-doc .method {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+      margin-right: 10px;
+    }
+
+    .method-post { background: #24a0ed; color: white; }
+    .method-get { background: #31c48d; color: white; }
+    .method-put { background: #f5ad4e; color: white; }
+    .method-delete { background: #ed5c65; color: white; }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: #999;
+      margin-top: 40px;
+    }
+
+    .highlight {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #ffc107;
+      margin: 15px 0;
+    }
+
+    ul {
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+
+    ul li {
+      margin-bottom: 8px;
+    }
+
+    a {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📧 Module 02: Email Queuing & Async Retry</h1>
+      <p>Queue-based email sending with exponential backoff, dead letter queues, and bounce handling</p>
+    </header>
+
+    <!-- Overview -->
+    <section class="section">
+      <h2>📚 Overview</h2>
+      <p>
+        This module teaches production-grade email queue management. Instead of sending emails directly (synchronously),
+        we queue them for background processing with intelligent retry logic, bounce handling, and monitoring.
+      </p>
+
+      <h3>Key Concepts</h3>
+      <ul>
+        <li><strong>Queue</strong> - Temporary storage for email jobs waiting to be sent</li>
+        <li><strong>Producer</strong> - Application that adds emails to the queue</li>
+        <li><strong>Consumer</strong> - Background worker that processes the queue</li>
+        <li><strong>Priority</strong> - Critical emails processed before low-priority ones</li>
+        <li><strong>Retry Strategy</strong> - Rule for when/how to retry failed emails</li>
+        <li><strong>Backoff</strong> - Increasing delay between retries (exponential, linear, fixed)</li>
+        <li><strong>Dead Letter Queue (DLQ)</strong> - Storage for permanently failed emails</li>
+        <li><strong>Bounce</strong> - Email delivery failure reported by ISP</li>
+      </ul>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+      <h2>✨ Features</h2>
+      
+      <div class="grid">
+        <div class="card">
+          <h4>⚡ Fast Queuing</h4>
+          <p>Add emails instantly without waiting for SMTP. Response in ~5ms instead of 500ms-5s.</p>
+        </div>
+
+        <div class="card">
+          <h4>🔄 Smart Retries</h4>
+          <p>Exponential backoff retries: 5s → 10s → 20s → 40s → ... Intelligent failure handling.</p>
+        </div>
+
+        <div class="card">
+          <h4>💀 Dead Letter Queue</h4>
+          <p>Permanently failed emails stored for manual review instead of being deleted.</p>
+        </div>
+
+        <div class="card">
+          <h4>📬 Bounce Handling</h4>
+          <p>Track hard bounces, soft bounces, complaints. Suppress invalid addresses.</p>
+        </div>
+
+        <div class="card">
+          <h4>🎯 Priority Processing</h4>
+          <p>Critical emails (password resets, alerts) sent before newsletters.</p>
+        </div>
+
+        <div class="card">
+          <h4>📊 Monitoring</h4>
+          <p>Real-time queue statistics, job tracking, health metrics.</p>
+        </div>
+
+        <div class="card">
+          <h4>🛡️ Rate Limiting</h4>
+          <p>Protect downstream email providers from overload.</p>
+        </div>
+
+        <div class="card">
+          <h4>🔍 Audit Logging</h4>
+          <p>Complete history of all email operations for compliance.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Endpoints -->
+    <section class="section">
+      <h2>🔌 API Endpoints</h2>
+
+      <h3>Queue Management</h3>
+
+      <div class="api-doc">
+        <span class="method method-post">POST</span> <strong>/api/queue/add</strong>
+        <p>Queue an email for sending</p>
+        <div class="code-block"><pre>{
+  "recipientEmail": "user@example.com",
+  "subject": "Welcome!",
+  "body": "&lt;h1&gt;Hello&lt;/h1&gt;",
+  "template": "welcome",
+  "priority": 5,
+  "maxAttempts": 5,
+  "backoffStrategy": "exponential",
+  "metadata": { "userId": 123 }
+}</pre></div>
+      </div>
+
+      <div class="api-doc">
+        <span class="method method-post">POST</span> <strong>/api/queue/process</strong>
+        <p>Process queued emails (send them)</p>
+        <div class="code-block"><pre>{ "maxJobs": 10 }</pre></div>
+      </div>
+
+      <div class="api-doc">
+        <span class="method method-get">GET</span> <strong>/api/queue/jobs</strong>
+        <p>Get all queue jobs with optional filters</p>
+        <div class="code-block"><pre>?status=queued&email=user@example.com&limit=50</pre></div>
+      </div>
+
+      <div class="api-doc">
+        <span class="method method-get">GET</span> <strong>/api/queue/job/:id</strong>
+        <p>Get specific job status</p>
+      </div>
+
+      <div class="api-doc">
+        <span class="method method-get">GET</span> <strong>/api/queue/stats</strong>
+        <p>Get queue statistics and health</p>
+      </div>
+
+      <div class="api-doc">
+        <span class="method method-post">POST</span> <strong>/api/queue/retry-failed</strong>
+        <p>Retry all failed jobs</p>
+      </div>
+
+      <h3>Dead Letter Queue</h3>
+
+      <div class="api-doc">
+        <span class="method method-get">GET</span> <strong>/api/dlq/items</strong>
+        <p>Get all items in dead letter queue</p>
+      </div>
+
+      <div class="api-doc">
+        <span class="method method-post">POST</span> <strong>/api/dlq/retry/:dlqId</strong>
+        <p>Retry item from DLQ</p>
+      </div>
+
+      <h3>Bounce Handling</h3>
+
+      <div class="api-doc">
+        <span class="method method-post">POST</span> <strong>/api/bounces/webhook</strong>
+        <p>Handle bounce notifications from email provider</p>
+        <div class="code-block"><pre>{
+  "email": "bounced@example.com",
+  "bounceType": "hard_bounce",
+  "bounceSubType": "permanent",
+  "jobId": 123
+}</pre></div>
+      </div>
+
+      <div class="api-doc">
+        <span class="method method-get">GET</span> <strong>/api/bounces/log</strong>
+        <p>Get bounce history</p>
+      </div>
+    </section>
+
+    <!-- Job States -->
+    <section class="section">
+      <h2>🔄 Job States & Transitions</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Description</th>
+            <th>Next States</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-warning">queued</span></td>
+            <td>Waiting in queue to be sent</td>
+            <td>processing, deadletter</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-warning">processing</span></td>
+            <td>Currently being sent</td>
+            <td>sent, failed, deadletter</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-success">sent</span></td>
+            <td>Successfully delivered to SMTP</td>
+            <td>bounced (if bounce received)</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-warning">failed</span></td>
+            <td>Failed, waiting for retry</td>
+            <td>queued (retry), deadletter</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-danger">deadletter</span></td>
+            <td>Permanently failed, manual review needed</td>
+            <td>queued (manual retry)</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-danger">bounced</span></td>
+            <td>Bounce reported by ISP</td>
+            <td>suppressed (hard bounce)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Retry Strategies -->
+    <section class="section">
+      <h2>⚙️ Retry Strategies</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h4>Exponential Backoff</h4>
+          <p><strong>Formula:</strong> delay = baseDelay × 2^(attempts)</p>
+          <p><strong>Example:</strong> 5s → 10s → 20s → 40s → 80s</p>
+          <p><strong>Use Case:</strong> General failures, temporary issues. Gives server more recovery time.</p>
+        </div>
+
+        <div class="card">
+          <h4>Linear Backoff</h4>
+          <p><strong>Formula:</strong> delay = baseDelay × attempts</p>
+          <p><strong>Example:</strong> 5s → 10s → 15s → 20s → 25s</p>
+          <p><strong>Use Case:</strong> Rate limiting, API quota issues. Steady pressure instead of exponential.</p>
+        </div>
+
+        <div class="card">
+          <h4>Fixed Delay</h4>
+          <p><strong>Formula:</strong> delay = baseDelay</p>
+          <p><strong>Example:</strong> 5s → 5s → 5s → 5s → 5s</p>
+          <p><strong>Use Case:</strong> Quick retries, transient network glitches. Keep it simple.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pre-configured Strategies -->
+    <section class="section">
+      <h2>🎯 Pre-configured Strategies</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Strategy</th>
+            <th>Max Attempts</th>
+            <th>Base Delay</th>
+            <th>Backoff Type</th>
+            <th>Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Aggressive</strong></td>
+            <td>10</td>
+            <td>1 second</td>
+            <td>Exponential</td>
+            <td>Critical emails (password resets, alerts, payments)</td>
+          </tr>
+          <tr>
+            <td><strong>Moderate</strong></td>
+            <td>5</td>
+            <td>5 seconds</td>
+            <td>Exponential</td>
+            <td>Standard transactional (welcome, confirmations)</td>
+          </tr>
+          <tr>
+            <td><strong>Conservative</strong></td>
+            <td>3</td>
+            <td>1 minute</td>
+            <td>Linear</td>
+            <td>Bulk emails, newsletters, low-priority</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Common Error Scenarios -->
+    <section class="section">
+      <h2>⚠️ Error Handling</h2>
+
+      <h3>Bounce Types</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Cause</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-danger">Hard Bounce</span></td>
+            <td>Invalid email address, user doesn't exist</td>
+            <td>Block email forever, move to suppression list</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-warning">Soft Bounce</span></td>
+            <td>Mailbox full, server temporarily down</td>
+            <td>Retry later with longer delays</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-danger">Complaint</span></td>
+            <td>User marked as spam</td>
+            <td>Block email, investigate complaint</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight">
+        <strong>⚡ Important:</strong> Hard bounces are permanent. Never retry. Each retry damages your sender reputation.
+      </div>
+    </section>
+
+    <!-- Example Flow -->
+    <section class="section">
+      <h2>🔄 Example: End-to-End Flow</h2>
+
+      <h3>Step 1: User Registration</h3>
+      <div class="code-block"><pre>POST /api/queue/add
+{
+  "recipientEmail": "alice@example.com",
+  "subject": "Welcome to MyApp!",
+  "body": "&lt;h1&gt;Welcome&lt;/h1&gt;",
+  "priority": 10,
+  "maxAttempts": 5,
+  "backoffStrategy": "exponential"
+}
+
+Response:
+{
+  "success": true,
+  "job": {
+    "id": 1,
+    "status": "queued",
+    "nextRetry": null
+  }
+}</pre></div>
+
+      <h3>Step 2: Process Queue</h3>
+      <div class="code-block"><pre>POST /api/queue/process
+
+// Server attempts to send email
+// SMTP server is temporarily down → Connection timeout
+// Email send fails
+
+Response:
+{
+  "success": true,
+  "processed": 1,
+  "results": [{
+    "id": 1,
+    "status": "failed",
+    "attempt": 1,
+    "nextRetry": "2024-01-01T10:00:05Z",  // 5 seconds later
+    "reason": "ECONNREFUSED"
+  }]
+}</pre></div>
+
+      <h3>Step 3: Automatic Retry</h3>
+      <p><em>5 seconds later, system retries automatically...</em></p>
+      <div class="code-block"><pre>POST /api/queue/process
+
+// SMTP server is now up, email sends successfully
+
+Response:
+{
+  "success": true,
+  "processed": 1,
+  "results": [{
+    "id": 1,
+    "status": "sent",
+    "sentAt": "2024-01-01T10:00:05Z"
+  }]
+}</pre></div>
+
+      <h3>Step 4: Hard Bounce Received</h3>
+      <p><em>Email provider reports the address is invalid...</em></p>
+      <div class="code-block"><pre>POST /api/bounces/webhook
+{
+  "email": "alice@example.com",
+  "bounceType": "hard_bounce",
+  "bounceSubType": "permanent"
+}
+
+// System:
+// 1. Logs the bounce
+// 2. Moves any queued emails to alice@example.com to DLQ
+// 3. Marks address as suppressed</pre></div>
+
+      <h3>Step 5: View Dead Letter Queue (if needed)</h3>
+      <div class="code-block"><pre>GET /api/dlq/items
+
+Response:
+{
+  "count": 1,
+  "items": [{
+    "id": 1,
+    "recipientEmail": "alice@example.com",
+    "reason": "Hard bounce received",
+    "movedAt": "2024-01-01T10:00:10Z"
+  }]
+}</pre></div>
+    </section>
+
+    <!-- Testing -->
+    <section class="section">
+      <h2>🧪 Testing Guide</h2>
+
+      <h3>Local Setup</h3>
+      <ul>
+        <li>Install MailDev: <code>npm install -g maildev</code></li>
+        <li>Start MailDev: <code>maildev</code></li>
+        <li>View emails: <code>http://localhost:1080</code></li>
+        <li>Configure app to use MailDev SMTP: <code>SMTP_HOST=localhost, SMTP_PORT=1025</code></li>
+      </ul>
+
+      <h3>Test Scenarios</h3>
+      <ul>
+        <li>✅ Queue email with high priority</li>
+        <li>✅ Process queue and verify priority ordering</li>
+        <li>✅ Simulate failure and verify exponential backoff delays</li>
+        <li>✅ Verify hard bounce blocks further sends</li>
+        <li>✅ Verify soft bounce allows retries</li>
+        <li>✅ Manually retry from DLQ</li>
+        <li>✅ Monitor queue stats during processing</li>
+        <li>✅ Verify rate limiting on rapid requests</li>
+      </ul>
+    </section>
+
+    <!-- Architecture Diagram -->
+    <section class="section">
+      <h2>🏗️ Architecture</h2>
+
+      <div class="code-block"><pre>┌──────────────┐
+│  Request     │  Queue email
+│  Handler     │──────────────→ Queue Storage
+└──────────────┘               (In-Memory/Redis)
+                                      ↓
+                            ┌─────────┴─────────┐
+                            │                   │
+                     ┌─ Status: queued
+                     │  ┌─ Status: processing
+                     │  ├─ Retry logic
+                     │  └─ Backoff delays
+                     │
+            ┌────────┤  ┌─ Status: sent (success)
+            │        │  │
+     Queue  │        └─ Status: failed
+   Processor│           Retry with backoff
+            │
+            │        ┌──────────────────┐
+            ├──────→ │ SMTP Provider    │
+            │        │ (Nodemailer,SES) │
+            │        └──────────────────┘
+            │                │
+            └────────┬───────┘
+                     │
+        ┌─ Success ──┤
+        │            └─ Bounce
+        │                │
+        ▼                ▼
+    Job: sent      Job: bounced
+                   + Log bounce
+                   + Block email
+                   + Move to DLQ</pre></div>
+    </section>
+
+    <!-- Moving Forward -->
+    <section class="section">
+      <h2>📚 Next Steps</h2>
+      <ul>
+        <li>Complete setup.md for installation instructions</li>
+        <li>Study theory.md for deep architectural concepts</li>
+        <li>Run checklist.md to verify all features work</li>
+        <li>Test with React UI: <code>http://localhost:3000</code></li>
+        <li>Move to Module 03: Push Notifications (Firebase)</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>Module 02: Email Queuing & Async Retry | Production-Grade Email Queue Management</p>
+      <p>© 2024 Backend Mastery - Notifications & Communication Series</p>
+    </footer>
+  </div>
+</body>
+</html>
+

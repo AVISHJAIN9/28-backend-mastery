@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><title>Preview: Cursor-Based Pagination</title>
+<style>
+  :root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3e;--text:#e2e8f0;--muted:#64748b;--accent:#3b82f6;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--font:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);padding:20px;min-height:100vh;}
+  .wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .row{display:flex;align-items:center;gap:10px;}
+  h2{font-size:12px;font-weight:700;margin-bottom:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:10px;}
+  input,textarea,select{width:100%;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;resize:vertical;}
+  input:focus,textarea:focus{border-color:var(--accent);}
+  button{padding:8px 16px;border:none;border-radius:6px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  button:hover{opacity:.85;}
+  .method{padding:5px 10px;border-radius:4px;font-size:10px;font-weight:700;background:var(--accent);color:white;}
+  .method.POST{background:#f59e0b;color:#000;}
+  .method.PUT{background:#8b5cf6;color:white;}
+  .method.DELETE{background:#ef4444;color:white;}
+  .method.PATCH{background:#06b6d4;color:#000;}
+  .ep-card{background:#0f1117;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
+  .ep-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .ep-path{font-size:13px;flex:1;}
+  .res{margin-top:10px;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;display:none;}
+  .res.show{display:block;}
+  .res.ok{border-color:var(--green);color:var(--green);}
+  .res.err{border-color:var(--red);color:var(--red);}
+  .token-row{display:flex;gap:10px;align-items:center;}
+  .token-row label{margin:0;white-space:nowrap;}
+  .token-row input{flex:1;margin:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card row" style="padding:14px;">
+    <span style="font-size:11px;color:var(--muted);white-space:nowrap">API BASE</span>
+    <input id="baseUrl" value="http://localhost:5000" style="margin:0;flex:1;">
+    <span style="font-size:11px;color:var(--muted);white-space:nowrap">Auth Token</span>
+    <input id="authToken" placeholder="JWT (optional)" style="margin:0;flex:1;">
+  </div>
+
+  <div class="card">
+    <h2>🧪 Cursor-Based Pagination — Test Endpoints</h2>
+    <div id="endpoints"></div>
+  </div>
+</div>
+
+<script>
+const ENDPOINTS = [{"method":"GET","path":"/api/items?limit=10","label":"First page (no cursor)"},{"method":"GET","path":"/api/items?limit=10&cursor=CURSOR_FROM_PREVIOUS_RESPONSE","label":"Next page (paste cursor from above)"},{"method":"GET","path":"/api/items?limit=5&sort=createdAt&order=desc","label":"Sort descending, 5 items per page"}];
+
+function base(){return document.getElementById('baseUrl').value.replace(/\/$/,'');}
+function getToken(){return document.getElementById('authToken').value;}
+
+function renderEndpoints(){
+  const wrap=document.getElementById('endpoints');
+  wrap.innerHTML=ENDPOINTS.map((ep,i)=>`
+    <div class="ep-card">
+      <div class="ep-header">
+        <span class="method ${ep.method}">${ep.method}</span>
+        <input id="path_${i}" value="${ep.path}" class="ep-path">
+        <button style="background:var(--accent);color:white;" onclick="callApi(${i})">Send →</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${ep.label}</div>
+      ${ep.body?'<textarea id="body_'+i+'" rows="3">'+JSON.stringify(ep.body,null,2)+'</textarea>':''}
+      <div class="res" id="res_${i}"></div>
+    </div>
+  `).join('');
+}
+
+async function callApi(i){
+  const ep=ENDPOINTS[i];
+  const path=document.getElementById('path_'+i).value;
+  const bodyEl=document.getElementById('body_'+i);
+  const el=document.getElementById('res_'+i);
+  el.className='res show'; el.textContent='Loading…';
+  try{
+    const h={'Content-Type':'application/json'};
+    const t=getToken();
+    if(t) h['Authorization']='Bearer '+t;
+    const opts={method:ep.method,headers:h};
+    if(bodyEl){try{opts.body=bodyEl.value;}catch{opts.body=bodyEl.value;}}
+    const r=await fetch(base()+path,opts);
+    const text=await r.text();
+    let d;try{d=JSON.parse(text);}catch{d=text;}
+    el.className='res show '+(r.ok?'ok':'err');
+    el.textContent=typeof d==='string'?d:JSON.stringify(d,null,2);
+  }catch(e){
+    el.className='res show err';
+    el.textContent='❌ '+e.message+'\n\nMake sure backend is running + CORS enabled';
+  }
+}
+
+renderEndpoints();
+</script>
+</body></html>

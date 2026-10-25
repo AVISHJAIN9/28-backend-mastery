@@ -1,0 +1,26 @@
+{
+  "name": "bloom-filters",
+  "version": "1.0.0",
+  "description": "Bloom Filters & Probabilistic Data Structures - Express + React",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "keywords": ["bloom-filter", "probabilistic", "caching", "express"],
+  "author": "Backend Mastery",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "winston": "^3.8.2",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1"
+  }
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Audit Trail – Preview</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f7f8fa; margin: 0; padding: 40px 16px; }
+    .card { background: #fff; border-radius: 12px; max-width: 800px; margin: 0 auto; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    h1 { margin: 0; }
+    .chain-ok { background: #c6f6d5; color: #276749; border-radius: 20px; padding: 4px 14px; font-size: 13px; font-weight: 700; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .filter-btn { padding: 5px 14px; border-radius: 20px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: .2s; }
+    .log-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
+    .badge { border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; color: #fff; white-space: nowrap; margin-top: 2px; }
+    .actor { font-size: 13px; font-weight: 600; }
+    .meta { font-size: 12px; color: #718096; margin-top: 2px; }
+    .seq { font-size: 11px; color: #a0aec0; text-align: right; white-space: nowrap; }
+    .foot { margin-top: 20px; font-size: 12px; color: #a0aec0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>📋 Audit Trail</h1>
+      <span class="chain-ok">✅ Chain Intact</span>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div id="logs"></div>
+    <p class="foot">Each entry is cryptographically chained. Tampering with any entry is immediately detectable.</p>
+  </div>
+  <script>
+    const LOGS = [
+      { seq: 1, type: "auth.login", actor: "usr_001", target: null, meta: '{"ip":"103.21.5.1"}', time: "07:12", color: "#4299e1" },
+      { seq: 2, type: "data.access", actor: "usr_001", target: "usr_001", meta: '{"fields":["profile"]}', time: "07:13", color: "#805ad5" },
+      { seq: 3, type: "consent.granted", actor: "usr_001", target: "usr_001", meta: '{"category":"marketing_email"}', time: "07:13", color: "#48bb78" },
+      { seq: 4, type: "admin.action", actor: "admin_007", target: "usr_002", meta: '{"action":"reset_password"}', time: "08:00", color: "#d69e2e" },
+      { seq: 5, type: "erasure.requested", actor: "usr_003", target: "usr_003", meta: '{"reason":"Withdrawal of consent"}', time: "09:30", color: "#e53e3e" },
+      { seq: 6, type: "data.export", actor: "admin_007", target: "usr_001", meta: '{"format":"JSON"}', time: "10:00", color: "#dd6b20" },
+      { seq: 7, type: "erasure.completed", actor: "system", target: "usr_003", meta: '{"requestedBy":"usr_003"}', time: "10:01", color: "#276749" },
+    ];
+    let currentFilter = "all";
+    const types = ["all", ...new Set(LOGS.map(l => l.type))];
+
+    function render() {
+      const filtersEl = document.getElementById("filters");
+      filtersEl.innerHTML = types.map(t =>
+        `<button class="filter-btn" onclick="setFilter('${t}')" style="background:${currentFilter===t?'#2d3748':'#e2e8f0'};color:${currentFilter===t?'#fff':'#4a5568'}">${t}</button>`
+      ).join("");
+      const logsEl = document.getElementById("logs");
+      const filtered = currentFilter === "all" ? LOGS : LOGS.filter(l => l.type === currentFilter);
+      logsEl.innerHTML = filtered.map(l => `
+        <div class="log-row">
+          <span class="badge" style="background:${l.color}">${l.type}</span>
+          <div style="flex:1">
+            <div class="actor">Actor: ${l.actor}${l.target && l.target !== l.actor ? " → Target: " + l.target : ""}</div>
+            <div class="meta">${l.meta}</div>
+          </div>
+          <div class="seq"><div>#${l.seq}</div><div>${l.time}</div></div>
+        </div>`).join("");
+    }
+    function setFilter(t) { currentFilter = t; render(); }
+    render();
+  </script>
+</body>
+</html>

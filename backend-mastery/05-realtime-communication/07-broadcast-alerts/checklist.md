@@ -1,0 +1,8 @@
+- [ ] Create alert schema
+- [ ] Implement broadcast function
+- [ ] Add targeted alerts
+- [ ] Store alert history
+- [ ] Show unread count
+- [ ] Add user preferences
+- [ ] Test severity filtering
+- [ ] Monitor delivery

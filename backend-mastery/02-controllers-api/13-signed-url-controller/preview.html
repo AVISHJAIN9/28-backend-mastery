@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Signed URL Controller Demo</title>
+	<style>
+		body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+		.container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+		h1 { color: #3b82f6; }
+		input, button { padding: 10px; margin: 8px 0; width: 100%; border-radius: 4px; border: 1px solid #ddd; }
+		button { background: #3b82f6; color: #fff; border: none; cursor: pointer; }
+		.result { background: #e0f7fa; padding: 12px; border-radius: 4px; margin-top: 16px; word-break: break-all; }
+		.error { background: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-top: 16px; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Signed URL Generator</h1>
+		<form id="signedUrlForm">
+			<label>Resource Path:</label>
+			<input type="text" id="resource" placeholder="/files/report.pdf" required />
+			<label>Expires In (seconds):</label>
+			<input type="number" id="expires" value="300" min="1" required />
+			<button type="submit">Generate Signed URL</button>
+		</form>
+		<div id="output"></div>
+	</div>
+	<script>
+		document.getElementById('signedUrlForm').onsubmit = async function(e) {
+			e.preventDefault();
+			const resource = document.getElementById('resource').value;
+			const expires = document.getElementById('expires').value;
+			const output = document.getElementById('output');
+			output.innerHTML = '';
+			try {
+				const res = await fetch('/api/signed-url', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ resource, expires: parseInt(expires) })
+				});
+				const data = await res.json();
+				if (res.ok && data.url) {
+					output.innerHTML = `<div class='result'><strong>Signed URL:</strong><br><a href="${data.url}" target="_blank">${data.url}</a></div>`;
+				} else {
+					output.innerHTML = `<div class='error'>${data.error || 'Failed to generate signed URL.'}</div>`;
+				}
+			} catch (err) {
+				output.innerHTML = `<div class='error'>${err.message}</div>`;
+			}
+		};
+	</script>
+</body>
+</html>
+

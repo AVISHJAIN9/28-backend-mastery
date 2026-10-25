@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Ride Booking Demo</title>
+	<style>
+		body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+		.container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+		h1 { color: #3b82f6; }
+		input, button { padding: 10px; margin: 8px 0; width: 100%; border-radius: 4px; border: 1px solid #ddd; }
+		button { background: #3b82f6; color: #fff; border: none; cursor: pointer; }
+		.result { background: #e0f7fa; padding: 12px; border-radius: 4px; margin-top: 16px; word-break: break-all; }
+		.error { background: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-top: 16px; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Book a Ride</h1>
+		<form id="rideForm">
+			<label>Pickup Location:</label>
+			<input type="text" id="pickup" placeholder="123 Main St" required />
+			<label>Dropoff Location:</label>
+			<input type="text" id="dropoff" placeholder="456 Oak Ave" required />
+			<button type="submit">Book Ride</button>
+		</form>
+		<div id="output"></div>
+	</div>
+	<script>
+		document.getElementById('rideForm').onsubmit = async function(e) {
+			e.preventDefault();
+			const pickup = document.getElementById('pickup').value;
+			const dropoff = document.getElementById('dropoff').value;
+			const output = document.getElementById('output');
+			output.innerHTML = '';
+			try {
+				const res = await fetch('/api/rides', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ pickup, dropoff })
+				});
+				const data = await res.json();
+				if (res.ok && data.rideId) {
+					output.innerHTML = `<div class='result'><strong>Ride Booked:</strong><br>ID: ${data.rideId}<br>Pickup: ${data.pickup}<br>Dropoff: ${data.dropoff}</div>`;
+				} else {
+					output.innerHTML = `<div class='error'>${data.error || 'Booking failed.'}</div>`;
+				}
+			} catch (err) {
+				output.innerHTML = `<div class='error'>${err.message}</div>`;
+			}
+		};
+	</script>
+</body>
+</html>
+

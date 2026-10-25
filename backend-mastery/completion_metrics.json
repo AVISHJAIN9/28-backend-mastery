@@ -1,0 +1,708 @@
+{
+  "project": {
+    "name": "Backend Mastery",
+    "timestamp": "/Users/avishjain/Downloads/backend-mastery",
+    "status": "COMPLETE",
+    "overall_percentage": 100.0,
+    "module_count": 27,
+    "subfolder_count": 350,
+    "file_count": 4281
+  },
+  "tiers": {
+    "TIER-1-FOUNDATION": {
+      "name": "TIER 1 FOUNDATION",
+      "modules_count": 6,
+      "percentage": 100.0,
+      "complete": 136,
+      "modules": [
+        {
+          "module": "01-authentication",
+          "number": 1,
+          "tier": "TIER-1-FOUNDATION",
+          "subfolders_complete": 33,
+          "subfolders_total": 33,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "02-controllers-api",
+          "number": 2,
+          "tier": "TIER-1-FOUNDATION",
+          "subfolders_complete": 22,
+          "subfolders_total": 22,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "03-middleware",
+          "number": 3,
+          "tier": "TIER-1-FOUNDATION",
+          "subfolders_complete": 15,
+          "subfolders_total": 15,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "04-models-database",
+          "number": 4,
+          "tier": "TIER-1-FOUNDATION",
+          "subfolders_complete": 28,
+          "subfolders_total": 28,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "05-realtime-communication",
+          "number": 5,
+          "tier": "TIER-1-FOUNDATION",
+          "subfolders_complete": 15,
+          "subfolders_total": 15,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "06-nodejs-internals",
+          "number": 6,
+          "tier": "TIER-1-FOUNDATION",
+          "subfolders_complete": 17,
+          "subfolders_total": 17,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        }
+      ]
+    },
+    "TIER-2-ADVANCED": {
+      "name": "TIER 2 ADVANCED",
+      "modules_count": 8,
+      "percentage": 100.0,
+      "complete": 95,
+      "modules": [
+        {
+          "module": "08-caching",
+          "number": 8,
+          "tier": "TIER-2-ADVANCED",
+          "subfolders_complete": 13,
+          "subfolders_total": 13,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "09-jobs-queues",
+          "number": 9,
+          "tier": "TIER-2-ADVANCED",
+          "subfolders_complete": 8,
+          "subfolders_total": 8,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "10-observability",
+          "number": 10,
+          "tier": "TIER-2-ADVANCED",
+          "subfolders_complete": 9,
+          "subfolders_total": 9,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "11-testing",
+          "number": 11,
+          "tier": "TIER-2-ADVANCED",
+          "subfolders_complete": 12,
+          "subfolders_total": 12,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "12-devops-cicd",
+          "number": 12,
+          "tier": "TIER-2-ADVANCED",
+          "subfolders_complete": 15,
+          "subfolders_total": 15,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "13-typescript-deep",
+          "number": 13,
+          "tier": "TIER-2-ADVANCED",
+          "subfolders_complete": 8,
+          "subfolders_total": 8,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "14-design-patterns",
+          "number": 14,
+          "tier": "TIER-2-ADVANCED",
+          "subfolders_complete": 12,
+          "subfolders_total": 12,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "15-algorithms-dsa",
+          "number": 15,
+          "tier": "TIER-2-ADVANCED",
+          "subfolders_complete": 10,
+          "subfolders_total": 10,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        }
+      ]
+    },
+    "TIER-3-SYSTEMS": {
+      "name": "TIER 3 SYSTEMS",
+      "modules_count": 9,
+      "percentage": 100.0,
+      "complete": 96,
+      "modules": [
+        {
+          "module": "16-network-http",
+          "number": 16,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 10,
+          "subfolders_total": 10,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "17-linux-os",
+          "number": 17,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 10,
+          "subfolders_total": 10,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "18-cryptography",
+          "number": 18,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 9,
+          "subfolders_total": 9,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "19-payments-fintech",
+          "number": 19,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 8,
+          "subfolders_total": 8,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "20-code-quality-git",
+          "number": 20,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 12,
+          "subfolders_total": 12,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "21-services-integrations",
+          "number": 21,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 12,
+          "subfolders_total": 12,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "22-compliance-privacy",
+          "number": 22,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 8,
+          "subfolders_total": 8,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "23-i18n",
+          "number": 23,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 6,
+          "subfolders_total": 6,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "24-architecture-patterns",
+          "number": 24,
+          "tier": "TIER-3-SYSTEMS",
+          "subfolders_complete": 12,
+          "subfolders_total": 12,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        }
+      ]
+    },
+    "TIER-4-SPECIALIZED": {
+      "name": "TIER 4 SPECIALIZED",
+      "modules_count": 4,
+      "percentage": 100.0,
+      "complete": 50,
+      "modules": [
+        {
+          "module": "25-file-media-storage",
+          "number": 25,
+          "tier": "TIER-4-SPECIALIZED",
+          "subfolders_complete": 10,
+          "subfolders_total": 10,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "26-notifications-communication",
+          "number": 26,
+          "tier": "TIER-4-SPECIALIZED",
+          "subfolders_complete": 9,
+          "subfolders_total": 9,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "28-real-world-patterns",
+          "number": 28,
+          "tier": "TIER-4-SPECIALIZED",
+          "subfolders_complete": 19,
+          "subfolders_total": 19,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        },
+        {
+          "module": "30-saas-multitenancy",
+          "number": 30,
+          "tier": "TIER-4-SPECIALIZED",
+          "subfolders_complete": 8,
+          "subfolders_total": 8,
+          "subfolder_percentage": 100.0,
+          "master_files_complete": 1,
+          "master_files_total": 1,
+          "total_percentage": 100.0
+        }
+      ]
+    }
+  },
+  "modules": [
+    {
+      "module": "01-authentication",
+      "number": 1,
+      "tier": "TIER-1-FOUNDATION",
+      "subfolders_complete": 33,
+      "subfolders_total": 33,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "02-controllers-api",
+      "number": 2,
+      "tier": "TIER-1-FOUNDATION",
+      "subfolders_complete": 22,
+      "subfolders_total": 22,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "03-middleware",
+      "number": 3,
+      "tier": "TIER-1-FOUNDATION",
+      "subfolders_complete": 15,
+      "subfolders_total": 15,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "04-models-database",
+      "number": 4,
+      "tier": "TIER-1-FOUNDATION",
+      "subfolders_complete": 28,
+      "subfolders_total": 28,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "05-realtime-communication",
+      "number": 5,
+      "tier": "TIER-1-FOUNDATION",
+      "subfolders_complete": 15,
+      "subfolders_total": 15,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "06-nodejs-internals",
+      "number": 6,
+      "tier": "TIER-1-FOUNDATION",
+      "subfolders_complete": 17,
+      "subfolders_total": 17,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "08-caching",
+      "number": 8,
+      "tier": "TIER-2-ADVANCED",
+      "subfolders_complete": 13,
+      "subfolders_total": 13,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "09-jobs-queues",
+      "number": 9,
+      "tier": "TIER-2-ADVANCED",
+      "subfolders_complete": 8,
+      "subfolders_total": 8,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "10-observability",
+      "number": 10,
+      "tier": "TIER-2-ADVANCED",
+      "subfolders_complete": 9,
+      "subfolders_total": 9,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "11-testing",
+      "number": 11,
+      "tier": "TIER-2-ADVANCED",
+      "subfolders_complete": 12,
+      "subfolders_total": 12,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "12-devops-cicd",
+      "number": 12,
+      "tier": "TIER-2-ADVANCED",
+      "subfolders_complete": 15,
+      "subfolders_total": 15,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "13-typescript-deep",
+      "number": 13,
+      "tier": "TIER-2-ADVANCED",
+      "subfolders_complete": 8,
+      "subfolders_total": 8,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "14-design-patterns",
+      "number": 14,
+      "tier": "TIER-2-ADVANCED",
+      "subfolders_complete": 12,
+      "subfolders_total": 12,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "15-algorithms-dsa",
+      "number": 15,
+      "tier": "TIER-2-ADVANCED",
+      "subfolders_complete": 10,
+      "subfolders_total": 10,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "16-network-http",
+      "number": 16,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 10,
+      "subfolders_total": 10,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "17-linux-os",
+      "number": 17,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 10,
+      "subfolders_total": 10,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "18-cryptography",
+      "number": 18,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 9,
+      "subfolders_total": 9,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "19-payments-fintech",
+      "number": 19,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 8,
+      "subfolders_total": 8,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "20-code-quality-git",
+      "number": 20,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 12,
+      "subfolders_total": 12,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "21-services-integrations",
+      "number": 21,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 12,
+      "subfolders_total": 12,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "22-compliance-privacy",
+      "number": 22,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 8,
+      "subfolders_total": 8,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "23-i18n",
+      "number": 23,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 6,
+      "subfolders_total": 6,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "24-architecture-patterns",
+      "number": 24,
+      "tier": "TIER-3-SYSTEMS",
+      "subfolders_complete": 12,
+      "subfolders_total": 12,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "25-file-media-storage",
+      "number": 25,
+      "tier": "TIER-4-SPECIALIZED",
+      "subfolders_complete": 10,
+      "subfolders_total": 10,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "26-notifications-communication",
+      "number": 26,
+      "tier": "TIER-4-SPECIALIZED",
+      "subfolders_complete": 9,
+      "subfolders_total": 9,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "28-real-world-patterns",
+      "number": 28,
+      "tier": "TIER-4-SPECIALIZED",
+      "subfolders_complete": 19,
+      "subfolders_total": 19,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    },
+    {
+      "module": "30-saas-multitenancy",
+      "number": 30,
+      "tier": "TIER-4-SPECIALIZED",
+      "subfolders_complete": 8,
+      "subfolders_total": 8,
+      "subfolder_percentage": 100.0,
+      "master_files_complete": 1,
+      "master_files_total": 1,
+      "total_percentage": 100.0
+    }
+  ],
+  "file_types": {
+    ".env.example": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "App.jsx": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "README.md": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "checklist.md": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "controller.js": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "middleware.js": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "package.json": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "routes.js": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "schema.js": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "server.js": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "setup.md": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    },
+    "theory.md": {
+      "complete": 350,
+      "total": 350,
+      "percentage": 100.0
+    }
+  },
+  "totals": {
+    "modules": 27,
+    "subfolders": 350,
+    "files": 4281
+  }
+}

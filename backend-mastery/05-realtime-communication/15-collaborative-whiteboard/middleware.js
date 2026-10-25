@@ -1,0 +1,1 @@
+module.exports = { boardAuth: (socket, next) => { if (!socket.userId) return next(new Error('Auth required')); next(); } };

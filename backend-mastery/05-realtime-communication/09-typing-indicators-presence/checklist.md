@@ -1,0 +1,8 @@
+- [ ] Implement presence tracking
+- [ ] Add typing indicator
+- [ ] Debounce typing events
+- [ ] Test presence updates
+- [ ] Monitor status accuracy
+- [ ] Clean up orphaned sessions
+- [ ] Test with many users
+- [ ] Verify real-time sync

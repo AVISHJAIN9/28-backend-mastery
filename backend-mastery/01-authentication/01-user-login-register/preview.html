@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview: User Login / Register</title>
+<style>
+  :root { --bg:#0f1117; --card:#1a1d27; --border:#2a2d3e; --text:#e2e8f0; --muted:#64748b; --accent:#3b82f6; --green:#22c55e; --red:#ef4444; --font:'JetBrains Mono',monospace; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .wrap{width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;}
+  h2{font-size:14px;font-weight:700;margin-bottom:16px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:12px;}
+  input{width:100%;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;}
+  input:focus{border-color:var(--accent);}
+  button{width:100%;margin-top:16px;padding:10px;background:var(--accent);border:none;border-radius:6px;color:white;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  button:hover{opacity:.85;}
+  button:disabled{opacity:.4;cursor:not-allowed;}
+  .res{margin-top:14px;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;min-height:60px;white-space:pre-wrap;word-break:break-all;}
+  .res.ok{border-color:var(--green);color:var(--green);}
+  .res.err{border-color:var(--red);color:var(--red);}
+  .base-url{width:100%;margin-bottom:20px;}
+  .base-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;grid-column:1/-1;display:flex;align-items:center;gap:12px;}
+  .base-card label{margin:0;white-space:nowrap;font-size:11px;color:var(--muted);}
+  .base-card input{flex:1;margin:0;}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--muted);margin-right:6px;}
+  .dot.live{background:var(--green);}
+  .token-display{font-size:10px;margin-top:8px;color:var(--muted);word-break:break-all;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- BASE URL -->
+  <div class="base-card">
+    <label>API BASE URL</label>
+    <input id="baseUrl" value="http://localhost:5000" placeholder="http://localhost:5000">
+    <button style="width:auto;margin:0;padding:8px 16px;" onclick="ping()">Ping</button>
+    <span id="pingRes" style="font-size:11px;color:var(--muted)"><span class="dot" id="pingDot"></span>not checked</span>
+  </div>
+
+  <!-- REGISTER -->
+  <div class="card">
+    <h2>📝 Register</h2>
+    <label>Name</label>
+    <input id="regName" placeholder="Avish Jain">
+    <label>Email</label>
+    <input id="regEmail" type="email" placeholder="avish@example.com">
+    <label>Password</label>
+    <input id="regPass" type="password" placeholder="password123">
+    <button onclick="register()">Register →</button>
+    <div class="res" id="regRes">Response will appear here…</div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="card">
+    <h2>🔐 Login</h2>
+    <label>Email</label>
+    <input id="loginEmail" placeholder="avish@example.com">
+    <label>Password</label>
+    <input id="loginPass" type="password" placeholder="password123">
+    <button onclick="login()">Login →</button>
+    <div class="res" id="loginRes">Response will appear here…</div>
+    <div class="token-display" id="tokenDisplay"></div>
+  </div>
+
+  <!-- PROTECTED ROUTE TEST -->
+  <div class="card" style="grid-column:1/-1">
+    <h2>🛡 Test Protected Route (uses token from login)</h2>
+    <label>Endpoint (e.g. /api/profile or /api/users/me)</label>
+    <input id="protectedRoute" value="/api/profile">
+    <button onclick="testProtected()">GET Protected Route →</button>
+    <div class="res" id="protectedRes">Response will appear here…</div>
+  </div>
+</div>
+
+<script>
+  let token = '';
+
+  function base() { return document.getElementById('baseUrl').value.replace(/\/$/,''); }
+
+  async function ping() {
+    try {
+      const r = await fetch(base() + '/');
+      document.getElementById('pingDot').className = 'dot live';
+      document.getElementById('pingRes').innerHTML = '<span class="dot live"></span>server reachable';
+    } catch {
+      document.getElementById('pingDot').className = 'dot';
+      document.getElementById('pingRes').innerHTML = '<span class="dot"></span>cannot reach server';
+    }
+  }
+
+  async function request(method, path, body, elId) {
+    const el = document.getElementById(elId);
+    el.className = 'res';
+    el.textContent = 'Loading…';
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const r = await fetch(base() + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+      const data = await r.json();
+      el.className = 'res ' + (r.ok ? 'ok' : 'err');
+      el.textContent = JSON.stringify(data, null, 2);
+      return { ok: r.ok, data };
+    } catch(e) {
+      el.className = 'res err';
+      el.textContent = '❌ ' + e.message + '\n\nMake sure your backend is running and CORS is enabled.';
+      return { ok: false };
+    }
+  }
+
+  async function register() {
+    const body = { name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, password: document.getElementById('regPass').value };
+    await request('POST', '/api/auth/register', body, 'regRes');
+  }
+
+  async function login() {
+    const body = { email: document.getElementById('loginEmail').value, password: document.getElementById('loginPass').value };
+    const { ok, data } = await request('POST', '/api/auth/login', body, 'loginRes');
+    if (ok && data) {
+      token = data.token || data.accessToken || data.access_token || '';
+      if (token) {
+        document.getElementById('tokenDisplay').textContent = '✓ Token saved: ' + token.substring(0, 60) + '…';
+      }
+    }
+  }
+
+  async function testProtected() {
+    const path = document.getElementById('protectedRoute').value;
+    await request('GET', path, null, 'protectedRes');
+  }
+</script>
+</body>
+</html>

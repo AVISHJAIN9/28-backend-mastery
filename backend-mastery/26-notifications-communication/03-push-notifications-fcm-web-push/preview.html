@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Push Notifications Module - Reference Documentation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 40px;
+    }
+    h1 { color: #667eea; margin: 30px 0 20px 0; font-size: 2rem; }
+    h2 { color: #333; margin: 25px 0 15px 0; font-size: 1.4rem; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+    h3 { color: #555; margin: 20px 0 10px 0; font-size: 1.1rem; }
+    p { color: #666; line-height: 1.6; margin: 10px 0; }
+    code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: 'Monaco', monospace; }
+    pre { background: #f5f5f5; padding: 15px; border-radius: 6px; overflow-x: auto; border-left: 4px solid #667eea; margin: 15px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th, td { padding: 12px; text-align: left; border: 1px solid #dee2e6; }
+    th { background: #f8f9fa; font-weight: 600; color: #333; }
+    tr:hover { background: #f8f9fa; }
+    .diagram { background: #f5f5f5; padding: 20px; border-radius: 6px; border-left: 4px solid #667eea; margin: 15px 0; font-family: monospace; white-space: pre; overflow-x: auto; }
+    .feature-box { background: #e7f3ff; border: 1px solid #667eea; padding: 15px; border-radius: 6px; margin: 15px 0; }
+    .endpoint { background: #f8f9fa; padding: 12px; border-left: 4px solid #667eea; margin: 15px 0; border-radius: 4px; }
+    .example { background: #fffbf0; padding: 15px; border-radius: 6px; border-left: 4px solid #ffc107; margin: 15px 0; }
+    .error { background: #fff5f5; padding: 15px; border-radius: 6px; border-left: 4px solid #dc3545; margin: 15px 0; }
+    .success { background: #f1f8f5; padding: 15px; border-radius: 6px; border-left: 4px solid #28a745; margin: 15px 0; }
+    .badge { display: inline-block; padding: 4px 8px; background: #667eea; color: white; border-radius: 4px; font-size: 0.8rem; font-weight: 600; margin: 0 5px 0 0; }
+    .badge-fcm { background: #1976d2; }
+    .badge-web { background: #7b1fa2; }
+    .highlight { background: #fff9e6; padding: 15px; border-radius: 6px; border-left: 4px solid #ffc107; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔔 Push Notifications Module - Reference Documentation</h1>
+    <p>Complete guide to Firebase Cloud Messaging (FCM) and Web Push API integration</p>
+
+    <h2>📋 Module Overview</h2>
+    <div class="feature-box">
+      <p><strong>What this module teaches:</strong></p>
+      <ul style="margin: 10px 0 0 20px;">
+        <li>Device token registration and lifecycle management</li>
+        <li>Sending notifications to single and multiple devices (up to 1000)</li>
+        <li>Cross-platform support: Firebase Cloud Messaging (Android/iOS) + Web Push API (Browsers)</li>
+        <li>VAPID key generation and Web Push security</li>
+        <li>Delivery tracking and engagement metrics</li>
+        <li>Error handling and invalid token cleanup</li>
+        <li>Rate limiting to prevent notification spam</li>
+      </ul>
+    </div>
+
+    <h2>🏗️ Architecture Diagram</h2>
+    <div class="diagram">Client Application (Mobile/Web)
+       ↓
+   Platform SDK (FCM/Web Push)
+       ↓ (Device Token/Subscription)
+   Device Token Store
+    - Platform: fcm|web-push|android|ios|macos|windows
+    - Token: Unique identifier per device
+    - UserId: Maps token to user
+    - IsActive: Status flag
+       ↓
+   API Endpoints
+    POST /api/devices/register
+    GET  /api/devices
+    POST /api/devices/:deviceId/unsubscribe
+    POST /api/notifications/send
+    POST /api/notifications/batch
+    GET  /api/notifications/logs
+    POST /api/notifications/:notificationId/action
+    GET  /api/stats
+       ↓
+   Middleware Layer
+    - JWT Authentication
+    - Device Token Validation
+    - Payload Size Validation
+    - Rate Limiting (3-tier)
+       ↓
+   Notification Controller
+    - Send single notification
+    - Send batch (up to 1000)
+    - Track engagement
+    - Calculate metrics
+       ↓
+   Data Stores
+    - deviceTokenStore (in-memory)
+    - notificationLogStore (in-memory)
+       ↓
+   Delivery Services
+    ├─ Firebase Cloud Messaging (FCM)
+    │  └─ For Android/iOS apps
+    └─ Web Push API
+       └─ For browser notifications</div>
+
+    <h2>📱 Device Token Registration Flow</h2>
+    <div class="diagram">1. Client App requests device token from FCM (or subscribes to Web Push)
+   
+2. Client receives token/subscription endpoint
+   
+3. Client sends token to backend:
+   POST /api/devices/register
+   {
+     "platform": "fcm",
+     "token": "cNf4pT7sL9mKx3bQ6vY2aZ8wH1jE5gR4tU0dP3oN6sL"
+   }
+   
+4. Backend validates token format based on platform
+   - FCM: Must be 100+ characters
+   - Web Push: Must include endpoint URL + keys
+   
+5. Backend checks for duplicates (upsert)
+   - If token exists: Update lastUsedAt timestamp
+   - If new: Create new device record
+   
+6. Return device ID to client
+   {
+     "deviceId": "device_1001",
+     "status": "active"
+   }
+   
+7. Client stores device ID for future use</div>
+
+    <h2>🔐 VAPID Keys for Web Push</h2>
+    <p>VAPID (Voluntary Application Server Identification) is a security protocol that proves you're authorized to send Web Push notifications.</p>
+    
+    <h3>What are VAPID Keys?</h3>
+    <table>
+      <tr>
+        <th>Key Type</th>
+        <th>Purpose</th>
+        <th>Use Case</th>
+      </tr>
+      <tr>
+        <td><strong>Public Key</strong></td>
+        <td>Shared with push service; client uses to encrypt data</td>
+        <td>Given to client/browser; included in Web App Manifest</td>
+      </tr>
+      <tr>
+        <td><strong>Private Key</strong></td>
+        <td>Used by server to sign VAPID token; proves identity</td>
+        <td>Kept secret on server; never shared with client</td>
+      </tr>
+    </table>
+
+    <h3>Encryption Flow (Web Push)</h3>
+    <div class="diagram">1. Browser requests push permission
+   
+2. Browser subscribes to push service (e.g., Firebase)
+   - Receives: endpoint URL, p256dh key, auth key
+   
+3. Browser sends subscription to app server
+   
+4. Server wants to send notification
+   
+5. Server creates VAPID "authentication header"
+   - Signs with private key
+   - Includes public key in header
+   - Push service verifies signature
+   
+6. Server encrypts payload with p256dh (browser's public key)
+   
+7. Server sends to push service:
+   - Encrypted payload
+   - VAPID authentication header
+   
+8. Push service forwards to browser
+   
+9. Browser decrypts with p256dh (private key)
+   
+10. Browser displays notification</div>
+
+    <h2>📤 Notification Sending - Single vs Batch</h2>
+    <h3>Single Device Notification</h3>
+    <div class="endpoint">
+      POST /api/notifications/send
+      <div style="margin-top: 10px;">
+        <strong>Request:</strong>
+        <pre>{
+  "deviceId": "device_1001",
+  "title": "Order Shipped",
+  "body": "Your order #12345 has shipped!",
+  "data": {
+    "orderId": "12345",
+    "trackingUrl": "https://track.example.com/12345"
+  }
+}</pre>
+        <strong>Response:</strong>
+        <pre>{
+  "notificationId": "notif_1001",
+  "status": "sent",
+  "deviceId": "device_1001",
+  "deliveredAt": "2024-03-20T15:30:01Z"
+}</pre>
+      </div>
+    </div>
+
+    <h3>Batch Notification (Up to 1000 devices)</h3>
+    <div class="endpoint">
+      POST /api/notifications/batch
+      <div style="margin-top: 10px;">
+        <strong>Request:</strong>
+        <pre>{
+  "deviceIds": [
+    "device_1001",
+    "device_1002",
+    "device_1003",
+    ... (up to 1000)
+  ],
+  "title": "New Feature Available",
+  "body": "Check out our new chat feature!"
+}</pre>
+        <strong>Response:</strong>
+        <pre>{
+  "message": "Batch notifications sent",
+  "sent": 3,
+  "failed": 0,
+  "notificationIds": [
+    "notif_1001",
+    "notif_1002",
+    "notif_1003"
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <h2>📊 Rate Limiting</h2>
+    <table>
+      <tr>
+        <th>Endpoint</th>
+        <th>Limit</th>
+        <th>Window</th>
+        <th>Purpose</th>
+      </tr>
+      <tr>
+        <td>POST /devices/register</td>
+        <td>50 requests</td>
+        <td>1 hour</td>
+        <td>Prevent token spam</td>
+      </tr>
+      <tr>
+        <td>POST /notifications/send</td>
+        <td>100 requests</td>
+        <td>15 minutes</td>
+        <td>Prevent notification spam to single devices</td>
+      </tr>
+      <tr>
+        <td>POST /notifications/batch</td>
+        <td>10 requests</td>
+        <td>1 hour</td>
+        <td>Prevent bulk notification abuse</td>
+      </tr>
+    </table>
+    <div class="highlight"><strong>Note:</strong> Rate limits are per-user (by JWT token). Exceeding limits returns HTTP 429 Too Many Requests.</div>
+
+    <h2>🔍 Platform Comparison</h2>
+    <table>
+      <tr>
+        <th>Aspect</th>
+        <th colspan="2" style="text-align: center;">Firebase Cloud Messaging (FCM)</th>
+        <th colspan="2" style="text-align: center;">Web Push API</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>Android</th>
+        <th>iOS</th>
+        <th colspan="2" style="text-align: center;">Browsers</th>
+      </tr>
+      <tr>
+        <td><strong>Token Format</strong></td>
+        <td colspan="2">100+ character alphanumeric string</td>
+        <td colspan="2">HTTPS endpoint URL</td>
+      </tr>
+      <tr>
+        <td><strong>Encryption</strong></td>
+        <td colspan="2">FCM handles encryption</td>
+        <td colspan="2">Requires VAPID keys + p256dh</td>
+      </tr>
+      <tr>
+        <td><strong>Maximum Payload</strong></td>
+        <td colspan="2">4KB</td>
+        <td colspan="2">4KB</td>
+      </tr>
+      <tr>
+        <td><strong>Delivery Time</strong></td>
+        <td colspan="2">Immediate (app must be registered)</td>
+        <td colspan="2">When browser is online</td>
+      </tr>
+      <tr>
+        <td><strong>Token Lifetime</strong></td>
+        <td colspan="2">Changes on app reinstall</td>
+        <td colspan="2">Until user clears browser data</td>
+      </tr>
+    </table>
+
+    <h2>⚠️ Error Handling</h2>
+    <h3>Common Error Codes</h3>
+    <table>
+      <tr>
+        <th>Code</th>
+        <th>Status</th>
+        <th>Meaning</th>
+        <th>How to Fix</th>
+      </tr>
+      <tr>
+        <td>INVALID_TOKEN</td>
+        <td>401</td>
+        <td>JWT expired or invalid</td>
+        <td>Regenerate JWT token</td>
+      </tr>
+      <tr>
+        <td>INVALID_FCM_TOKEN</td>
+        <td>400</td>
+        <td>FCM token format wrong</td>
+        <td>Verify token from Firebase SDK</td>
+      </tr>
+      <tr>
+        <td>INVALID_ENDPOINT</td>
+        <td>400</td>
+        <td>Web Push endpoint missing</td>
+        <td>Include subscription.endpoint</td>
+      </tr>
+      <tr>
+        <td>DEVICE_NOT_FOUND</td>
+        <td>404</td>
+        <td>Device doesn't exist</td>
+        <td>Register device first</td>
+      </tr>
+      <tr>
+        <td>TITLE_TOO_LONG</td>
+        <td>400</td>
+        <td>Title > 200 chars</td>
+        <td>Shorten title to ≤200 chars</td>
+      </tr>
+      <tr>
+        <td>BODY_TOO_LONG</td>
+        <td>400</td>
+        <td>Body > 4000 chars</td>
+        <td>Shorten body to ≤4000 chars</td>
+      </tr>
+      <tr>
+        <td>TOO_MANY_REQUESTS</td>
+        <td>429</td>
+        <td>Rate limit exceeded</td>
+        <td>Wait before retrying</td>
+      </tr>
+    </table>
+
+    <h2>📈 Real-World Examples</h2>
+    <h3>E-Commerce: Order Notifications</h3>
+    <div class="example">
+      <strong>Scenario:</strong> Send order status updates to customer's devices
+      <pre>// When order ships
+POST /api/notifications/send
+{
+  "deviceId": "device_user_123",
+  "title": "Order Shipped!",
+  "body": "Your order #12345 is on its way",
+  "data": {
+    "orderId": "12345",
+    "trackingUrl": "https://track.example.com/12345",
+    "estimatedDelivery": "2024-03-25"
+  }
+}</pre>
+      <strong>Benefits:</strong> Customer gets instant notification, can click to track shipment
+    </div>
+
+    <h3>Social Network: Friend Requests</h3>
+    <div class="example">
+      <strong>Scenario:</strong> Notify user's friends about follow request
+      <pre>// Get friend's devices
+const friendDevices = await getDevicesByUserId(friendId);
+const deviceIds = friendDevices.map(d => d.deviceId);
+
+// Send batch notification
+POST /api/notifications/batch
+{
+  "deviceIds": deviceIds,
+  "title": "New Follow Request",
+  "body": "Alice wants to follow you!",
+  "data": {
+    "requesterId": "user_alice",
+    "action": "accept"
+  }
+}</pre>
+      <strong>Benefits:</strong> Scales to notify thousands instantly
+    </div>
+
+    <h3>Messaging App: Chat Alerts</h3>
+    <div class="example">
+      <strong>Scenario:</strong> Alert user about new messages
+      <pre>// Only if user is not actively using app
+if (userAppStatus !== 'active') {
+  POST /api/notifications/send
+  {
+    "deviceId": device_id,
+    "title": "New message from Bob",
+    "body": "Hey, how are you?",
+    "data": {
+      "conversationId": "conv_123",
+      "senderId": "user_bob",
+      "messageId": "msg_456"
+    }
+  }
+}</pre>
+      <strong>Benefits:</strong> Chat delivery confirmation without opening app
+    </div>
+
+    <h2>🧪 Testing Checklist</h2>
+    <h3>Device Registration</h3>
+    <ul style="margin: 10px 0 0 20px;">
+      <li>[ ] Register FCM device token (100+ chars)</li>
+      <li>[ ] Register Web Push subscription (with endpoint + keys)</li>
+      <li>[ ] Verify duplicate tokens are ignored (upsert)</li>
+      <li>[ ] Test invalid token formats are rejected</li>
+      <li>[ ] Verify registered device appears in /api/devices list</li>
+    </ul>
+
+    <h3>Notification Sending</h3>
+    <ul style="margin: 10px 0 0 20px;">
+      <li>[ ] Send notification to single device</li>
+      <li>[ ] Verify notification appears in logs (status: 'sent')</li>
+      <li>[ ] Send batch to 10 devices</li>
+      <li>[ ] Send batch to 100 devices</li>
+      <li>[ ] Send batch to 1000 devices (max limit)</li>
+      <li>[ ] Test batch with >1000 devices (should fail)</li>
+    </ul>
+
+    <h3>Payload Validation</h3>
+    <ul style="margin: 10px 0 0 20px;">
+      <li>[ ] Test title at exactly 200 chars (should pass)</li>
+      <li>[ ] Test title at 201 chars (should fail)</li>
+      <li>[ ] Test body at exactly 4000 chars (should pass)</li>
+      <li>[ ] Test body at 4001 chars (should fail)</li>
+      <li>[ ] Send with data object (should include in notification)</li>
+    </ul>
+
+    <h3>Rate Limiting</h3>
+    <ul style="margin: 10px 0 0 20px;">
+      <li>[ ] Register device 49 times in 1 hour (should pass)</li>
+      <li>[ ] Register device 51st time in 1 hour (should get 429)</li>
+      <li>[ ] Send 100 single notifications in 15 min (should pass)</li>
+      <li>[ ] Send 101st notification in same 15 min (should get 429)</li>
+      <li>[ ] Send 10 batch notifications in 1 hour (should pass)</li>
+    </ul>
+
+    <h3>Engagement Tracking</h3>
+    <ul style="margin: 10px 0 0 20px;">
+      <li>[ ] Track notification as clicked</li>
+      <li>[ ] Verify /api/stats shows engagement rate</li>
+      <li>[ ] Verify delivery rate calculated correctly</li>
+      <li>[ ] Check notification logs show clickedAt timestamp</li>
+    </ul>
+
+    <h2>⚡ Performance Tips</h2>
+    <ul>
+      <li><strong>Batch operations:</strong> Use batch endpoint for >10 devices (more efficient)</li>
+      <li><strong>Payload size:</strong> Keep under 4KB; compress images/data</li>
+      <li><strong>Token management:</strong> Refresh tokens every 90 days</li>
+      <li><strong>Dead token cleanup:</strong> Remove tokens that fail 3+ times</li>
+      <li><strong>Rate limiting:</strong> Adjust limits based on your user tier pricing</li>
+      <li><strong>Monitoring:</strong> Track delivery/failure rates daily</li>
+    </ul>
+
+    <h2>🔒 Security Best Practices</h2>
+    <ul>
+      <li><strong>JWT Secret:</strong> Use strong secret (32+ chars), rotate regularly</li>
+      <li><strong>VAPID Private Key:</strong> Never expose to client; store securely</li>
+      <li><strong>HTTPS Only:</strong> Web Push requires HTTPS (not HTTP)</li>
+      <li><strong>Token Validation:</strong> Always verify token format and ownership</li>
+      <li><strong>Rate Limiting:</strong> Prevents malicious users from spamming</li>
+      <li><strong>Data Encryption:</strong> Sensitive data in notifications should be encrypted</li>
+    </ul>
+
+    <h2>📚 Further Reading</h2>
+    <ul>
+      <li><a href="https://firebase.google.com/docs/cloud-messaging" style="color: #667eea;">Firebase Cloud Messaging Documentation</a></li>
+      <li><a href="https://www.w3.org/TR/push-api/" style="color: #667eea;">Web Push API Specification</a></li>
+      <li><a href="https://datatracker.ietf.org/doc/html/draft-thomson-webpush-vapid" style="color: #667eea;">VAPID Specification</a></li>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API" style="color: #667eea;">Service Workers (MDN)</a></li>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Notification" style="color: #667eea;">Notification API (MDN)</a></li>
+    </ul>
+  </div>
+</body>
+</html>

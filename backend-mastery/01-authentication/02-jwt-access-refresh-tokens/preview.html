@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><title>Preview: JWT Tokens</title>
+<style>
+  :root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3e;--text:#e2e8f0;--muted:#64748b;--accent:#6366f1;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--font:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);padding:20px;min-height:100vh;}
+  .wrap{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .full{grid-column:1/-1;}
+  h2{font-size:12px;font-weight:700;margin-bottom:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:10px;}
+  input{width:100%;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;}
+  input:focus{border-color:var(--accent);}
+  button{width:100%;margin-top:12px;padding:9px;border:none;border-radius:6px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;}
+  .btn-accent{background:var(--accent);color:white;}
+  .btn-green{background:var(--green);color:#000;}
+  .btn-amber{background:var(--amber);color:#000;}
+  .res{margin-top:10px;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;min-height:50px;white-space:pre-wrap;word-break:break-all;}
+  .res.ok{border-color:var(--green);color:var(--green);}
+  .res.err{border-color:var(--red);color:var(--red);}
+  .token-box{background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:10px;word-break:break-all;color:var(--muted);margin-top:8px;min-height:36px;}
+  .token-part{display:inline;}
+  .tp-header{color:#f59e0b;}
+  .tp-payload{color:#22c55e;}
+  .tp-sig{color:#6366f1;}
+  .decode-section{margin-top:10px;}
+  .decode-part{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:6px;font-size:11px;}
+  .decode-label{font-size:10px;color:var(--muted);margin-bottom:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card full" style="display:flex;gap:12px;align-items:center;padding:14px;">
+    <span style="font-size:11px;color:var(--muted);white-space:nowrap">API BASE</span>
+    <input id="baseUrl" value="http://localhost:5000" style="flex:1;margin:0;">
+  </div>
+
+  <!-- LOGIN -->
+  <div class="card">
+    <h2>🔐 Login → Get Tokens</h2>
+    <label>Email</label><input id="email" value="test@example.com">
+    <label>Password</label><input id="pass" type="password" value="password123">
+    <button class="btn-accent" onclick="login()">Login →</button>
+    <div class="res" id="loginRes">Tokens appear here…</div>
+  </div>
+
+  <!-- TOKEN INSPECTOR -->
+  <div class="card">
+    <h2>🔍 JWT Inspector</h2>
+    <label>Paste any JWT to decode</label>
+    <input id="jwtInput" placeholder="eyJhbGci…" oninput="decodeJWT()">
+    <div class="decode-section" id="decodeSection" style="display:none">
+      <div class="decode-part">
+        <div class="decode-label">HEADER</div>
+        <div id="jwtHeader" style="color:var(--amber)"></div>
+      </div>
+      <div class="decode-part">
+        <div class="decode-label">PAYLOAD</div>
+        <div id="jwtPayload" style="color:var(--green)"></div>
+      </div>
+      <div class="decode-part">
+        <div class="decode-label">SIGNATURE</div>
+        <div id="jwtSig" style="color:var(--accent);font-size:10px;">Cannot verify without secret</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFRESH TOKEN -->
+  <div class="card">
+    <h2>♻ Refresh Token</h2>
+    <label>Refresh Token</label>
+    <input id="refreshToken" placeholder="paste refresh token">
+    <button class="btn-green" onclick="refresh()">Get New Access Token →</button>
+    <div class="res" id="refreshRes">New access token appears here…</div>
+  </div>
+
+  <!-- TEST PROTECTED -->
+  <div class="card">
+    <h2>🛡 Test with Access Token</h2>
+    <label>Access Token</label>
+    <input id="accessToken" placeholder="paste access token">
+    <label>Endpoint</label>
+    <input id="protectedEp" value="/api/profile">
+    <button class="btn-amber" onclick="testProtected()">GET Protected Route →</button>
+    <div class="res" id="protectedRes"></div>
+  </div>
+
+  <!-- LOGOUT -->
+  <div class="card full">
+    <h2>🚪 Logout (Revoke Refresh Token)</h2>
+    <label>Refresh Token to revoke</label>
+    <input id="logoutToken" placeholder="paste refresh token">
+    <button style="background:var(--red);color:white;width:auto;padding:9px 20px;margin-top:12px;border:none;border-radius:6px;font-family:var(--font);font-size:12px;cursor:pointer;" onclick="logout()">Revoke Token</button>
+    <div class="res" id="logoutRes"></div>
+  </div>
+</div>
+
+<script>
+function base(){return document.getElementById('baseUrl').value.replace(/\/$/,'');}
+
+async function req(method,path,body,elId,token){
+  const el=document.getElementById(elId);
+  el.className='res'; el.textContent='Loading…';
+  try{
+    const h={'Content-Type':'application/json'};
+    if(token) h['Authorization']='Bearer '+token;
+    const r=await fetch(base()+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+    const d=await r.json();
+    el.className='res '+(r.ok?'ok':'err');
+    el.textContent=JSON.stringify(d,null,2);
+    return {ok:r.ok,data:d};
+  }catch(e){
+    el.className='res err'; el.textContent='❌ '+e.message;
+    return {ok:false};
+  }
+}
+
+async function login(){
+  const {ok,data}=await req('POST','/api/auth/login',{email:document.getElementById('email').value,password:document.getElementById('pass').value},'loginRes');
+  if(ok&&data){
+    const at=data.accessToken||data.token||data.access_token||'';
+    const rt=data.refreshToken||data.refresh_token||'';
+    if(at){document.getElementById('accessToken').value=at;document.getElementById('jwtInput').value=at;decodeJWT();}
+    if(rt){document.getElementById('refreshToken').value=rt;document.getElementById('logoutToken').value=rt;}
+  }
+}
+
+async function refresh(){
+  const rt=document.getElementById('refreshToken').value;
+  const {ok,data}=await req('POST','/api/auth/refresh',{refreshToken:rt},'refreshRes');
+  if(ok&&data){const at=data.accessToken||data.token||'';if(at)document.getElementById('accessToken').value=at;}
+}
+
+async function testProtected(){
+  const path=document.getElementById('protectedEp').value;
+  const token=document.getElementById('accessToken').value;
+  await req('GET',path,null,'protectedRes',token);
+}
+
+async function logout(){
+  const rt=document.getElementById('logoutToken').value;
+  await req('POST','/api/auth/logout',{refreshToken:rt},'logoutRes');
+}
+
+function decodeJWT(){
+  const jwt=document.getElementById('jwtInput').value.trim();
+  const parts=jwt.split('.');
+  if(parts.length!==3){document.getElementById('decodeSection').style.display='none';return;}
+  try{
+    const dec=s=>JSON.parse(atob(s.replace(/-/g,'+').replace(/_/g,'/')));
+    document.getElementById('jwtHeader').textContent=JSON.stringify(dec(parts[0]),null,2);
+    document.getElementById('jwtPayload').textContent=JSON.stringify(dec(parts[1]),null,2);
+    document.getElementById('decodeSection').style.display='block';
+  }catch{document.getElementById('decodeSection').style.display='none';}
+}
+</script>
+</body></html>

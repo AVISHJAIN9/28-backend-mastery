@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idempotency Controller Demo</title>
+<style>
+  :root { --bg:#0f1117; --card:#1a1d27; --border:#2a2d3e; --text:#e2e8f0; --muted:#64748b; --accent:#3b82f6; --green:#22c55e; --red:#ef4444; --font:'JetBrains Mono',monospace; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;padding:20px;}
+  .container{max-width:1200px;margin:0 auto;}
+  h1{font-size:24px;font-weight:800;margin-bottom:24px;color:var(--accent);}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .card h2{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:10px;}
+  input{width:100%;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;}
+  input:focus{border-color:var(--accent);}
+  button{padding:10px 16px;background:var(--accent);border:none;border-radius:6px;color:white;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  button:hover{opacity:.85;}
+  .res{margin-top:10px;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:11px;min-height:40px;max-height:200px;overflow-y:auto;word-break:break-all;white-space:pre-wrap;}
+  .res.ok{border-color:var(--green);color:var(--green);}
+  .demo-flow{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;grid-column:1/-1;margin-bottom:20px;}
+  .flow-step{display:flex;gap:10px;margin-bottom:12px;font-size:12px;}
+  .step-num{width:24px;height:24px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;}
+  .key-demo{display:flex;gap:10px;align-items:center;}
+  .key-btn{padding:6px 12px;font-size:11px;background:var(--border);}
+  .stat{padding:12px;background:var(--border);border-radius:6px;margin-top:10px;font-size:12px;}
+  .stat-val{color:var(--accent);font-weight:700;font-size:16px;margin-top:4px;}
+  .status-badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:10px;font-weight:700;}
+  .status-badge.completed{background:rgba(34,197,94,.2);color:#22c55e;}
+  textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:#0f1117;color:var(--text);font-family:var(--font);resize:none;}
+  select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:#0f1117;color:var(--text);font-family:var(--font);}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>⚡ Idempotency Controller Demo</h1>
+
+  <div class="demo-flow">
+    <h2 style="margin-bottom:12px;">How Idempotency Works</h2>
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Client sends Idempotency-Key header</strong><br>Same key for retries</div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Server checks cache</strong><br>Same key + body → return cached instantly ⚡</div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Response cached 24 hours</strong><br>Any retry = same result</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>📤 Request Builder</h2>
+      <label>Idempotency Key (UUID)</label>
+      <div class="key-demo">
+        <input id="idempotencyKey" value="550e8400-e29b-41d4-a716-446655440000" readonly>
+        <button class="key-btn" onclick="generateNewKey()">🔄</button>
+      </div>
+      <label>Endpoint</label>
+      <select id="endpoint">
+        <option>/api/transactions</option>
+        <option>/api/orders</option>
+        <option>/api/webhooks</option>
+      </select>
+      <label>Body</label>
+      <textarea id="requestBody" style="height:80px;">{"amount": 100, "recipientId": "user123"}</textarea>
+      <button onclick="sendRequest()" style="width:100%;margin-top:10px;">Send Request</button>
+    </div>
+
+    <div class="card">
+      <h2>📥 Response</h2>
+      <div id="responseDisplay" style="font-size:12px;color:var(--muted);">Send a request...</div>
+      <div id="responseRes" class="res ok" style="display:none;margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>📊 Stats</h2>
+      <div class="stat">Total: <span id="statTotal" class="stat-val">0</span></div>
+      <div class="stat">Cache Hits: <span id="statCacheHits" class="stat-val" style="color:#22c55e;">0</span></div>
+      <div class="stat">Fresh: <span id="statFresh" class="stat-val" style="color:#3b82f6;">0</span></div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Try This</h2>
+      <ol style="font-size:12px;line-height:1.8;">
+        <li>Click "Send Request"</li>
+        <li>Send again with SAME key</li>
+        <li>→ Returns cached instantly ⚡</li>
+        <li>Click 🔄 to get new key</li>
+        <li>→ New request created</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<script>
+let stats = { total: 0, cacheHits: 0, fresh: 0 };
+let requestLog = [];
+
+function generateNewKey() {
+  const key = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+  document.getElementById('idempotencyKey').value = key;
+}
+
+function sendRequest() {
+  const key = document.getElementById('idempotencyKey').value;
+  const endpoint = document.getElementById('endpoint').value;
+  const body = document.getElementById('requestBody').value;
+
+  try {
+    const parsed = JSON.parse(body);
+    const isCacheHit = requestLog.some(r => r.key === key && r.endpoint === endpoint && r.body === body);
+    
+    const response = {
+      success: true,
+      statusCode: 201,
+      transaction: {
+        id: isCacheHit ? requestLog.find(r => r.key === key && r.endpoint === endpoint).txId : 'txn_' + Math.random().toString(36).substring(7),
+        amount: parsed.amount,
+        cached: isCacheHit
+      },
+      message: isCacheHit ? 'Returned from cache ⚡' : 'Fresh request processed'
+    };
+
+    if (!isCacheHit) {
+      requestLog.push({ key, endpoint, body, txId: response.transaction.id });
+      stats.fresh++;
+    } else {
+      stats.cacheHits++;
+    }
+    stats.total++;
+
+    document.getElementById('responseDisplay').innerHTML = 
+      `Status: ${response.statusCode} | ${response.message}<br>
+       Key: ${key}<br>
+       <span class="status-badge ${isCacheHit ? 'completed' : ''}">${isCacheHit ? 'CACHED ⚡' : 'FRESH'}</span>`;
+    
+    document.getElementById('responseRes').style.display = 'block';
+    document.getElementById('responseRes').innerHTML = JSON.stringify(response, null, 2);
+
+    document.getElementById('statTotal').textContent = stats.total;
+    document.getElementById('statCacheHits').textContent = stats.cacheHits;
+    document.getElementById('statFresh').textContent = stats.fresh;
+  } catch (e) {
+    document.getElementById('responseDisplay').innerHTML = '<span style="color:#ef4444;">❌ Invalid JSON</span>';
+  }
+}
+</script>
+
+</body>
+</html>

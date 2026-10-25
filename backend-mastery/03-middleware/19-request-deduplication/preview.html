@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>19 - Request Deduplication</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+    .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .header p { font-size: 1.1em; opacity: 0.9; }
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      padding: 40px;
+    }
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .section h2 {
+      color: #333;
+      font-size: 1.3em;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #555;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0); }
+    .response-box {
+      background: #f5f5f5;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success { border-left-color: #10b981; color: #10b981; }
+    .error { border-left-color: #ef4444; color: #ef4444; }
+    .duplicate { border-left-color: #f59e0b; color: #f59e0b; }
+    @media (max-width: 768px) {
+      .content { grid-template-columns: 1fr; }
+      .header h1 { font-size: 1.8em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔄 Request Deduplication</h1>
+      <p>Prevent duplicate requests from processing multiple times</p>
+    </div>
+    
+    <div class="content">
+      <div class="section">
+        <h2>Request Setup</h2>
+        
+        <label>Request ID (optional):</label>
+        <input type="text" id="requestId" placeholder="Leave empty for auto-generation">
+        
+        <label>Request Body:</label>
+        <textarea id="body" placeholder='{"amount": 100, "userId": 1}'></textarea>
+        
+        <label>Endpoint:</label>
+        <select id="endpoint">
+          <option value="http://localhost:4019/api/transfer">POST /api/transfer</option>
+          <option value="http://localhost:4019/api/payment">POST /api/payment</option>
+        </select>
+        
+        <button onclick="sendRequest()">Send Request</button>
+        <button onclick="sendDuplicate()" style="background: #f59e0b; margin-top: 10px;">Send Same Request Again (Test Duplicate)</button>
+      </div>
+      
+      <div class="section">
+        <h2>Response & Deduplication</h2>
+        <div id="response" class="response-box">
+          Waiting for request...
+        </div>
+        <div id="dedupStatus" style="background: #f0f9ff; padding: 15px; border-radius: 6px; margin-top: 15px;">
+          <p><strong>Requests Sent:</strong> <span id="count">0</span></p>
+          <p><strong>Duplicates Detected:</strong> <span id="duplicates">0</span></p>
+          <p><strong>Last Request ID:</strong> <span id="lastId">None</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lastRequest = null;
+    let requestCount = 0;
+    let duplicateCount = 0;
+
+    async function sendRequest() {
+      const requestId = document.getElementById('requestId').value || Math.random().toString(36).substr(2, 9);
+      const body = document.getElementById('body').value;
+      const endpoint = document.getElementById('endpoint').value;
+      const responseDiv = document.getElementById('response');
+      
+      lastRequest = { requestId, body, endpoint };
+      
+      try {
+        const parsedBody = body ? JSON.parse(body) : {};
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Request-ID': requestId
+          },
+          body: JSON.stringify(parsedBody)
+        });
+        
+        const data = await response.json();
+        
+        requestCount++;
+        document.getElementById('count').textContent = requestCount;
+        document.getElementById('lastId').textContent = requestId;
+        
+        responseDiv.className = 'response-box ' + (response.status >= 400 ? 'error' : 'success');
+        responseDiv.textContent = JSON.stringify({
+          status: response.status,
+          requestId,
+          isDuplicate: data.isDuplicate,
+          data
+        }, null, 2);
+        
+      } catch (error) {
+        responseDiv.className = 'response-box error';
+        responseDiv.textContent = 'Error: ' + error.message;
+      }
+    }
+
+    async function sendDuplicate() {
+      if (!lastRequest) {
+        alert('Send a request first!');
+        return;
+      }
+      
+      const responseDiv = document.getElementById('response');
+      
+      try {
+        const parsedBody = lastRequest.body ? JSON.parse(lastRequest.body) : {};
+        
+        const response = await fetch(lastRequest.endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Request-ID': lastRequest.requestId
+          },
+          body: JSON.stringify(parsedBody)
+        });
+        
+        const data = await response.json();
+        
+        if (data.isDuplicate) {
+          duplicateCount++;
+          document.getElementById('duplicates').textContent = duplicateCount;
+        }
+        
+        responseDiv.className = 'response-box ' + (data.isDuplicate ? 'duplicate' : 'success');
+        responseDiv.textContent = JSON.stringify({
+          status: response.status,
+          requestId: lastRequest.requestId,
+          isDuplicate: data.isDuplicate,
+          message: data.isDuplicate ? 'DUPLICATE REQUEST BLOCKED' : 'Request processed',
+          data
+        }, null, 2);
+        
+      } catch (error) {
+        responseDiv.className = 'response-box error';
+        responseDiv.textContent = 'Error: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>

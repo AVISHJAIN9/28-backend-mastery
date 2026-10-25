@@ -1,0 +1,8 @@
+- [ ] Create room model
+- [ ] Implement join handler
+- [ ] Implement leave handler
+- [ ] Track room members
+- [ ] Broadcast to room
+- [ ] Handle room deletion
+- [ ] Test multiple rooms
+- [ ] Monitor memory usage

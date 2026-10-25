@@ -1,0 +1,1 @@
+const e=require("express"),r=express.Router();r.post("/",(req,res)=>res.json({ok:1}));r.get("/",(req,res)=>res.json([]));module.exports=r;

@@ -1,0 +1,8 @@
+- [ ] Generate JWT on login
+- [ ] Validate on socket connect
+- [ ] Implement token refresh
+- [ ] Handle expiry
+- [ ] Test auth failures
+- [ ] Verify user isolation
+- [ ] Monitor token leaks
+- [ ] Production security review

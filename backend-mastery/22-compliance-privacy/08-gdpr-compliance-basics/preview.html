@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GDPR Compliance – Preview</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f7f8fa; margin: 0; padding: 40px 16px; }
+    .card { background: #fff; border-radius: 12px; max-width: 700px; margin: 0 auto; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+    h1 { margin-bottom: 16px; }
+    .tabs { display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 24px; }
+    .tab { padding: 8px 18px; border: none; background: transparent; color: #4a5568; border-radius: 6px; font-weight: 600; cursor: pointer; transition: .2s; font-size: 14px; }
+    .tab.active { background: #3182ce; color: #fff; }
+    .row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+    .name { font-weight: 600; font-size: 14px; }
+    .sub { font-size: 12px; color: #718096; margin-top: 2px; }
+    .badge { border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 700; color: #fff; }
+    .box { background: #f7f8fa; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+    .step { display: flex; gap: 16px; margin-bottom: 16px; }
+    .circle { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🇪🇺 GDPR Compliance Dashboard</h1>
+    <div class="tabs">
+      <button class="tab active" onclick="show('principles',this)">⚖️ Principles</button>
+      <button class="tab" onclick="show('rights',this)">🧑 Rights</button>
+      <button class="tab" onclick="show('lawful',this)">📜 Lawful Bases</button>
+      <button class="tab" onclick="show('breach',this)">🚨 Breach</button>
+    </div>
+
+    <div id="principles">
+      <h2 style="margin-top:0">Data Protection Principles</h2>
+      <div class="row"><div><div class="name">Lawfulness, Fairness & Transparency</div><div class="sub">Art. 5(1)(a)</div></div><span class="badge" style="background:#48bb78">✓ Met</span></div>
+      <div class="row"><div><div class="name">Purpose Limitation</div><div class="sub">Art. 5(1)(b)</div></div><span class="badge" style="background:#48bb78">✓ Met</span></div>
+      <div class="row"><div><div class="name">Data Minimisation</div><div class="sub">Art. 5(1)(c)</div></div><span class="badge" style="background:#ed8936">⚠ Review</span></div>
+      <div class="row"><div><div class="name">Accuracy</div><div class="sub">Art. 5(1)(d)</div></div><span class="badge" style="background:#48bb78">✓ Met</span></div>
+      <div class="row"><div><div class="name">Storage Limitation</div><div class="sub">Art. 5(1)(e)</div></div><span class="badge" style="background:#48bb78">✓ Met</span></div>
+      <div class="row"><div><div class="name">Integrity & Confidentiality</div><div class="sub">Art. 5(1)(f)</div></div><span class="badge" style="background:#48bb78">✓ Met</span></div>
+      <div class="row"><div><div class="name">Accountability</div><div class="sub">Art. 5(2)</div></div><span class="badge" style="background:#ed8936">⚠ Review</span></div>
+    </div>
+
+    <div id="rights" class="hidden">
+      <h2 style="margin-top:0">Data Subject Rights Implementation</h2>
+      <div class="row"><div><div class="name">Right to be Informed</div><div class="sub">Art. 13-14</div></div><span class="badge" style="background:#48bb78">✓ Done</span></div>
+      <div class="row"><div><div class="name">Right of Access</div><div class="sub">Art. 15</div></div><span class="badge" style="background:#48bb78">✓ Done</span></div>
+      <div class="row"><div><div class="name">Right to Rectification</div><div class="sub">Art. 16</div></div><span class="badge" style="background:#48bb78">✓ Done</span></div>
+      <div class="row"><div><div class="name">Right to Erasure</div><div class="sub">Art. 17</div></div><span class="badge" style="background:#48bb78">✓ Done</span></div>
+      <div class="row"><div><div class="name">Right to Restrict Processing</div><div class="sub">Art. 18</div></div><span class="badge" style="background:#e53e3e">✗ Needed</span></div>
+      <div class="row"><div><div class="name">Right to Data Portability</div><div class="sub">Art. 20</div></div><span class="badge" style="background:#e53e3e">✗ Needed</span></div>
+      <div class="row"><div><div class="name">Right to Object</div><div class="sub">Art. 21</div></div><span class="badge" style="background:#e53e3e">✗ Needed</span></div>
+    </div>
+
+    <div id="lawful" class="hidden">
+      <h2 style="margin-top:0">Lawful Bases in Use</h2>
+      <div class="box"><div style="display:flex;justify-content:space-between"><strong>Consent</strong><span style="font-size:12px;color:#718096">Art. 6(1)(a)</span></div><div style="font-size:13px;color:#4a5568;margin-top:4px">Used for: Marketing, optional features</div></div>
+      <div class="box"><div style="display:flex;justify-content:space-between"><strong>Contract</strong><span style="font-size:12px;color:#718096">Art. 6(1)(b)</span></div><div style="font-size:13px;color:#4a5568;margin-top:4px">Used for: Account delivery, payments</div></div>
+      <div class="box"><div style="display:flex;justify-content:space-between"><strong>Legal Obligation</strong><span style="font-size:12px;color:#718096">Art. 6(1)(c)</span></div><div style="font-size:13px;color:#4a5568;margin-top:4px">Used for: Tax, compliance reporting</div></div>
+      <div class="box"><div style="display:flex;justify-content:space-between"><strong>Legitimate Interests</strong><span style="font-size:12px;color:#718096">Art. 6(1)(f)</span></div><div style="font-size:13px;color:#4a5568;margin-top:4px">Used for: Analytics, fraud prevention</div></div>
+    </div>
+
+    <div id="breach" class="hidden">
+      <h2 style="margin-top:0">Breach Notification Timeline</h2>
+      <div class="step"><div class="circle" style="background:#e53e3e">0h</div><div><div class="name">Breach Detected</div><div class="sub">Incident response team alerted immediately</div></div></div>
+      <div class="step"><div class="circle" style="background:#dd6b20">24h</div><div><div class="name">Internal Assessment</div><div class="sub">Scope, risk level, and affected subjects determined</div></div></div>
+      <div class="step"><div class="circle" style="background:#d69e2e">72h</div><div><div class="name">Notify Supervisory Authority</div><div class="sub">Notify ICO/DPA (Art. 33) — required unless low risk</div></div></div>
+      <div class="step"><div class="circle" style="background:#3182ce">ASAP</div><div><div class="name">Notify Data Subjects</div><div class="sub">Required if HIGH risk to individuals (Art. 34)</div></div></div>
+      <div class="step"><div class="circle" style="background:#48bb78">30d</div><div><div class="name">Post-Incident Review</div><div class="sub">Root cause, remediation, lessons learned documented</div></div></div>
+    </div>
+  </div>
+  <script>
+    function show(id, btn) {
+      ['principles','rights','lawful','breach'].forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>

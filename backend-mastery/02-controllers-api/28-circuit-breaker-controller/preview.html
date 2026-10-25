@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circuit Breaker Demo</title>
+  <style>
+    body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1 { color: #3b82f6; }
+    button { padding: 10px; margin: 8px 0; width: 100%; border-radius: 4px; border: none; color: #fff; cursor: pointer; }
+    .primary { background: #3b82f6; }
+    .secondary { background: #8b5cf6; }
+    .result { background: #e0f7fa; padding: 12px; border-radius: 4px; margin-top: 16px; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Circuit Breaker Resilience Demo</h1>
+    <button class="primary" onclick="testRequest()">Send Request</button>
+    <button class="secondary" onclick="checkStatus()">Check Circuit Status</button>
+    <div class="result" id="output"></div>
+  </div>
+  <script>
+    function testRequest() {
+      fetch('/api/external')
+        .then(r => r.json())
+        .then(d => document.getElementById('output').textContent = 'Response: ' + JSON.stringify(d))
+        .catch(e => document.getElementById('output').textContent = 'Error: ' + e.message);
+    }
+    function checkStatus() {
+      fetch('/api/circuit-status')
+        .then(r => r.json())
+        .then(d => document.getElementById('output').textContent = 'Circuit Status: ' + JSON.stringify(d))
+        .catch(e => document.getElementById('output').textContent = 'Error: ' + e.message);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+const express = require('express');
+const SSEController = require('./controller');
+module.exports = (app) => { const sse = new SSEController(); const r = express.Router(); r.get('/stream', (req,res) => { res.setHeader('Content-Type','text/event-stream'); sse.addClient(req.query.id, res); res.on('close', () => sse.removeClient(req.query.id)); }); r.post('/send', (req,res) => { sse.broadcast(req.body.event, req.body.data); res.json({ok:true}); }); return r; };

@@ -1,0 +1,18 @@
+{
+  "name": "28-circuit-breaker-controller",
+  "version": "1.0.0",
+  "description": "Circuit breaker pattern for resilience and failure handling",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "opossum": "^6.3.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.0"
+  }
+}

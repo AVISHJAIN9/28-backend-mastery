@@ -1,0 +1,39 @@
+{
+  "name": "10-session-management",
+  "version": "1.0.0",
+  "description": "Redis session management: absolute timeout, idle timeout, and rolling expiration strategies",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build needed for development'",
+    "test": "echo 'Add tests here'"
+  },
+  "keywords": [
+    "redis",
+    "session",
+    "session-management",
+    "authentication",
+    "user-sessions",
+    "absolute-timeout",
+    "idle-timeout",
+    "rolling-expiration"
+  ],
+  "author": "Backend Mastery",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "redis": "^4.6.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

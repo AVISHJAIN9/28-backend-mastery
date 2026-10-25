@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AI LLM Proxy Demo</title>
+	<style>
+		body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+		.container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+		h1 { color: #3b82f6; }
+		textarea, button { padding: 10px; margin: 8px 0; width: 100%; border-radius: 4px; border: 1px solid #ddd; }
+		button { background: #3b82f6; color: #fff; border: none; cursor: pointer; }
+		.result { background: #e0f7fa; padding: 12px; border-radius: 4px; margin-top: 16px; word-break: break-all; }
+		.error { background: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-top: 16px; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>AI LLM Proxy Demo</h1>
+		<form id="llmForm">
+			<label>Prompt:</label>
+			<textarea id="prompt" rows="4" placeholder="Ask me anything..." required></textarea>
+			<button type="submit">Send Prompt</button>
+		</form>
+		<div id="output"></div>
+	</div>
+	<script>
+		document.getElementById('llmForm').onsubmit = async function(e) {
+			e.preventDefault();
+			const prompt = document.getElementById('prompt').value;
+			const output = document.getElementById('output');
+			output.innerHTML = '';
+			try {
+				const res = await fetch('/api/llm', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ prompt })
+				});
+				const data = await res.json();
+				if (res.ok && data.response) {
+					output.innerHTML = `<div class='result'><strong>LLM Response:</strong><br>${data.response}</div>`;
+				} else {
+					output.innerHTML = `<div class='error'>${data.error || 'Prompt failed.'}</div>`;
+				}
+			} catch (err) {
+				output.innerHTML = `<div class='error'>${err.message}</div>`;
+			}
+		};
+	</script>
+</body>
+</html>
+

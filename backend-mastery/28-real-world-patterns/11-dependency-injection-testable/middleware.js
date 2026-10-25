@@ -1,0 +1,1 @@
+const { userSchema } = require('./schema');\n\nconst validateUser = (req, res, next) => {\n  const { error } = userSchema.validate(req.body);\n  if (error) return res.status(400).json({ error: error.details[0].message });\n  next();\n};\n\nmodule.exports = { validateUser };"

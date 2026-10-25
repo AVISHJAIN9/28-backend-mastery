@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Hashing - Interactive Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Monaco', 'Menlo', monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #4ec9b0; margin: 20px 0; }
+    h2 { color: #9cdcfe; margin: 15px 0 10px 0; font-size: 18px; }
+    .tool { background: #252526; padding: 20px; margin: 20px 0; border-left: 4px solid #007acc; border-radius: 4px; }
+    .input-group { margin: 15px 0; }
+    label { display: block; color: #ce9178; margin-bottom: 5px; font-weight: bold; }
+    input, textarea, select { width: 100%; padding: 8px; background: #1e1e1e; color: #d4d4d4; border: 1px solid #3e3e42; border-radius: 4px; font-family: inherit; }
+    button { background: #007acc; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; margin-right: 10px; }
+    button:hover { background: #005a9e; }
+    .output { background: #1e1e1e; border: 1px solid #3e3e42; padding: 15px; margin-top: 10px; max-height: 250px; overflow-y: auto; border-radius: 4px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); }
+    pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; }
+    .success { color: #4ec9b0; font-weight: bold; }
+    .error { color: #f48771; font-weight: bold; }
+    .warning { color: #dcdcaa; }
+    .info { color: #9cdcfe; }
+    .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Password Hashing - Interactive Preview</h1>
+    
+    <!-- bcrypt Hashing -->
+    <div class="tool">
+      <h2>bcrypt - Secure Password Hashing</h2>
+      <div class="input-group">
+        <label>Password:</label>
+        <input type="password" id="bcryptPassword" placeholder="Enter password to hash">
+      </div>
+      <div class="input-group">
+        <label>Rounds (cost factor):</label>
+        <input type="number" id="bcryptRounds" value="12" min="4" max="31">
+      </div>
+      <div class="button-group">
+        <button onclick="hashBcrypt()">Hash Password</button>
+        <button onclick="clearBcryptHash()">Clear</button>
+      </div>
+      <div id="bcryptOutput" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- bcrypt Verification -->
+    <div class="tool">
+      <h2>bcrypt - Verify Password</h2>
+      <div class="input-group">
+        <label>Password (to verify):</label>
+        <input type="password" id="verifyPassword" placeholder="Enter password">
+      </div>
+      <div class="input-group">
+        <label>Hash (from above):</label>
+        <textarea id="verifyHash" rows="2" placeholder="Paste bcrypt hash here..."></textarea>
+      </div>
+      <button onclick="verifyBcrypt()">Verify Password</button>
+      <div id="verifyOutput" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- SHA256 Hashing -->
+    <div class="tool">
+      <h2>SHA256 - Fast Hash (Demo Only)</h2>
+      <div class="input-group">
+        <label>Text to hash:</label>
+        <textarea id="sha256Text" rows="3" placeholder="Enter text..."></textarea>
+      </div>
+      <button onclick="hashSHA256()">Hash with SHA256</button>
+      <div id="sha256Output" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="tool">
+      <h2>Hash Comparison - See Difference</h2>
+      <div class="input-group">
+        <label>Text 1:</label>
+        <input type="text" id="compareText1" placeholder="e.g., password">
+      </div>
+      <div class="input-group">
+        <label>Text 2 (slightly different):</label>
+        <input type="text" id="compareText2" placeholder="e.g., passwor">
+      </div>
+      <button onclick="compareHashes()">Compare Hashes</button>
+      <div id="compareOutput" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="tool" style="border-left-color: #ce9178;">
+      <h2>ℹ️ Algorithm Comparison</h2>
+      <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+        <tr style="border-bottom: 1px solid #3e3e42;">
+          <th style="text-align: left; padding: 8px; color: #ce9178;">Algorithm</th>
+          <th style="text-align: left; padding: 8px; color: #ce9178;">Speed</th>
+          <th style="text-align: left; padding: 8px; color: #ce9178;">For Passwords</th>
+        </tr>
+        <tr style="border-bottom: 1px solid #3e3e42;">
+          <td style="padding: 8px;">bcrypt</td>
+          <td style="padding: 8px;">Slow 🐢</td>
+          <td style="padding: 8px; color: #4ec9b0;">✓ Recommended</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #3e3e42;">
+          <td style="padding: 8px;">Argon2</td>
+          <td style="padding: 8px;">Very Slow 🐢🐢</td>
+          <td style="padding: 8px; color: #4ec9b0;">✓ Highly Recommended</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #3e3e42;">
+          <td style="padding: 8px;">SHA256</td>
+          <td style="padding: 8px;">Very Fast ⚡</td>
+          <td style="padding: 8px; color: #f48771;">✗ NOT Safe</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:5801/api';
+
+    async function hashBcrypt() {
+      const password = document.getElementById('bcryptPassword').value;
+      const rounds = document.getElementById('bcryptRounds').value;
+      const output = document.getElementById('bcryptOutput');
+
+      if (!password) {
+        output.innerHTML = '<span class="error">❌ Error: Password required</span>';
+        output.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/hash/bcrypt?password=${encodeURIComponent(password)}&rounds=${rounds}`);
+        const data = await response.json();
+        
+        const html = `
+          <span class="success">✓ Hash Generated Successfully</span>
+          <pre><span class="info">Algorithm:</span> ${data.algorithm}
+<span class="info">Rounds:</span> ${data.rounds}
+<span class="info">Salt:</span> ${data.salt}
+<span class="info">Hash:</span> <strong>${data.hash}</strong>
+<span class="info">Hash Length:</span> ${data.hashLength} characters
+<span class="warning">⚠️ Copy the hash above to test verification</span></pre>`;
+        
+        output.innerHTML = html;
+        output.style.display = 'block';
+        document.getElementById('verifyHash').value = data.hash;
+      } catch (err) {
+        output.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+        output.style.display = 'block';
+      }
+    }
+
+    async function verifyBcrypt() {
+      const password = document.getElementById('verifyPassword').value;
+      const hash = document.getElementById('verifyHash').value;
+      const output = document.getElementById('verifyOutput');
+
+      if (!password || !hash) {
+        output.innerHTML = '<span class="error">❌ Error: Password and hash required</span>';
+        output.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/verify/bcrypt?password=${encodeURIComponent(password)}&hash=${encodeURIComponent(hash)}`);
+        const data = await response.json();
+        
+        const status = data.match ? '<span class="success">✓ PASSWORD MATCHES</span>' : '<span class="error">✗ PASSWORD DOES NOT MATCH</span>';
+        const html = `${status}
+<pre><span class="info">Verification Result:</span> ${data.match ? 'SUCCESS' : 'FAILED'}
+<span class="info">Explanation:</span> ${data.explanation}</pre>`;
+        
+        output.innerHTML = html;
+        output.style.display = 'block';
+      } catch (err) {
+        output.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+        output.style.display = 'block';
+      }
+    }
+
+    async function hashSHA256() {
+      const text = document.getElementById('sha256Text').value;
+      const output = document.getElementById('sha256Output');
+
+      if (!text) {
+        output.innerHTML = '<span class="error">❌ Error: Text required</span>';
+        output.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/hash/sha256?text=${encodeURIComponent(text)}`);
+        const data = await response.json();
+        
+        const html = `<span class="warning">⚠️ SHA256 is FAST but NOT safe for passwords</span>
+<pre><span class="info">Algorithm:</span> ${data.algorithm}
+<span class="info">Text:</span> ${data.text}
+<span class="info">Hash:</span> <strong>${data.hash}</strong>
+<span class="info">Hash Length:</span> ${data.hashLength} characters
+<span class="warning">Note: Same input always produces same hash (predictable)</span></pre>`;
+        
+        output.innerHTML = html;
+        output.style.display = 'block';
+      } catch (err) {
+        output.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+        output.style.display = 'block';
+      }
+    }
+
+    async function compareHashes() {
+      const text1 = document.getElementById('compareText1').value;
+      const text2 = document.getElementById('compareText2').value;
+      const output = document.getElementById('compareOutput');
+
+      if (!text1 || !text2) {
+        output.innerHTML = '<span class="error">❌ Error: Both texts required</span>';
+        output.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/compare?text1=${encodeURIComponent(text1)}&text2=${encodeURIComponent(text2)}`);
+        const data = await response.json();
+        
+        const matchStatus = data.match ? '<span class="success">✓ HASHES MATCH</span>' : '<span class="error">✗ HASHES DIFFERENT</span>';
+        const html = `${matchStatus}
+<pre><span class="info">Text 1:</span> "${data.text1}" (${data.text1Length} chars)
+<span class="info">Text 2:</span> "${data.text2}" (${data.text2Length} chars)
+<span class="info">Hash 1:</span> ${data.hash1.substring(0, 40)}...
+<span class="info">Hash 2:</span> ${data.hash2.substring(0, 40)}...
+<span class="warning">💡 Even tiny differences create completely different hashes!</span></pre>`;
+        
+        output.innerHTML = html;
+        output.style.display = 'block';
+      } catch (err) {
+        output.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+        output.style.display = 'block';
+      }
+    }
+
+    function clearBcryptHash() {
+      document.getElementById('bcryptPassword').value = '';
+      document.getElementById('bcryptOutput').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

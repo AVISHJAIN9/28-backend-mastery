@@ -1,0 +1,8 @@
+- [ ] Create canvas component
+- [ ] Implement drawing
+- [ ] Sync drawn elements
+- [ ] Share cursor positions
+- [ ] Add color selection
+- [ ] Implement undo/redo
+- [ ] Test with many users
+- [ ] Add export feature

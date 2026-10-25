@@ -1,0 +1,8 @@
+- [ ] Create poll model
+- [ ] Implement vote tracking
+- [ ] Broadcast updates
+- [ ] Calculate percentages
+- [ ] Add poll expiry
+- [ ] Prevent double voting
+- [ ] Test real-time sync
+- [ ] Add result history

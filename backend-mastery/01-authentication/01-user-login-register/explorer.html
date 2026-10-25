@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Mastery - Mobile Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            border-color: #667eea;
+        }
+
+        .content {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .module-card {
+            background: linear-gradient(135deg, #f5f5f5 0%, #fff 100%);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .module-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .module-number {
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .module-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 24px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quick-link {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .quick-link:hover {
+            border-color: #667eea;
+            background: #f5f5f5;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .list-item {
+            padding: 12px;
+            border-left: 3px solid #e0e0e0;
+            margin-bottom: 8px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .list-item:hover {
+            border-left-color: #667eea;
+            background: white;
+        }
+
+        .access-info {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Backend Mastery</h1>
+        <p>Full Mobile Access to All Modules & Content</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('welcome')">Welcome</button>
+        <button class="tab-btn" onclick="switchTab('modules')">All Modules</button>
+        <button class="tab-btn" onclick="switchTab('quicklinks')">Quick Links</button>
+        <button class="tab-btn" onclick="switchTab('access')">Access Guide</button>
+    </div>
+
+    <!-- Welcome Tab -->
+    <div id="welcome" class="content active">
+        <div class="info-box">
+            <h2 style="color: #667eea; margin-bottom: 10px;">Welcome to Backend Mastery Mobile Portal</h2>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 15px;">
+                You now have full access to all 30+ backend development modules directly on your mobile device. 
+                Browse, explore, and learn everything about Node.js, Express, databases, security, and more.
+            </p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-num">30+</div>
+                    <div class="stat-label">Modules</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">200+</div>
+                    <div class="stat-label">Sub-Modules</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">∞</div>
+                    <div class="stat-label">Knowledge</div>
+                </div>
+            </div>
+
+            <div class="quick-links">
+                <a href="/auth" class="quick-link">🔐 Login/Register</a>
+                <a href="/" class="quick-link">📊 Dashboard</a>
+                <a href="javascript:switchTab('modules')" class="quick-link">📚 All Modules</a>
+                <a href="javascript:switchTab('quicklinks')" class="quick-link">⚡ Quick Links</a>
+            </div>
+        </div>
+
+        <h3 class="section-title">Featured Modules</h3>
+        <div class="modules-grid" id="featuredModules"></div>
+    </div>
+
+    <!-- All Modules Tab -->
+    <div id="modules" class="content">
+        <input type="text" class="search-box" id="searchInput" placeholder="Search modules..." onkeyup="filterModules()">
+        <div id="allModulesList"></div>
+    </div>
+
+    <!-- Quick Links Tab -->
+    <div id="quicklinks" class="content">
+        <h3 class="section-title">Quick Access Links</h3>
+        <p style="color: #666; margin-bottom: 20px;">All available modules and their sub-modules:</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+            <div class="list-item"><strong>01 - Authentication</strong><br><small>User login, JWT, OAuth2, 2FA, Passkeys</small></div>
+            <div class="list-item"><strong>02 - Controllers API</strong><br><small>REST API design, CRUD patterns, routing</small></div>
+            <div class="list-item"><strong>03 - Middleware</strong><br><small>Express middleware, error handling, logging</small></div>
+            <div class="list-item"><strong>04 - Models Database</strong><br><small>ORM, SQL, MongoDB, relationships</small></div>
+            <div class="list-item"><strong>05 - Realtime Communication</strong><br><small>WebSocket, Socket.io, Server-Sent Events</small></div>
+            <div class="list-item"><strong>06 - Node.js Internals</strong><br><small>Event loop, libuv, performance, memory</small></div>
+            <div class="list-item"><strong>07 - Security</strong><br><small>OWASP, encryption, rate limiting, CORS</small></div>
+            <div class="list-item"><strong>08 - Caching</strong><br><small>Redis, in-memory cache, TTL, invalidation</small></div>
+            <div class="list-item"><strong>09 - Jobs & Queues</strong><br><small>Bull, RabbitMQ, background tasks, retries</small></div>
+            <div class="list-item"><strong>10 - Observability</strong><br><small>Logging, metrics, tracing, monitoring</small></div>
+            <div class="list-item"><strong>11 - Testing & QA</strong><br><small>Unit tests, integration tests, Jest, Mocha</small></div>
+            <div class="list-item"><strong>12 - DevOps & CI/CD</strong><br><small>Docker, Kubernetes, GitHub Actions</small></div>
+            <div class="list-item"><strong>13 - TypeScript</strong><br><small>Generics, decorators, advanced types</small></div>
+            <div class="list-item"><strong>14 - Design Patterns</strong><br><small>23 Gang of Four patterns, SOLID principles</small></div>
+            <div class="list-item"><strong>15 - Algorithms & DSA</strong><br><small>Sorting, searching, complexity analysis</small></div>
+            <div class="list-item"><strong>16 - Network & HTTP</strong><br><small>TCP/IP, DNS, proxies, load balancing</small></div>
+            <div class="list-item"><strong>17 - Linux & OS</strong><br><small>Shell scripts, CLI, file systems, processes</small></div>
+            <div class="list-item"><strong>18 - Cryptography</strong><br><small>Encryption, hashing, digital signatures</small></div>
+            <div class="list-item"><strong>19 - Payments & Fintech</strong><br><small>Stripe, PayPal, billing, subscriptions</small></div>
+            <div class="list-item"><strong>20 - Code Quality & Git</strong><br><small>Version control, linting, semantic versioning</small></div>
+            <div class="list-item"><strong>21 - Services & Integrations</strong><br><small>AWS, webhooks, microservices, event-driven</small></div>
+            <div class="list-item"><strong>22 - Compliance & Privacy</strong><br><small>GDPR, data protection, audit logs</small></div>
+            <div class="list-item"><strong>23 - Internationalization</strong><br><small>i18n, localization, timezones, translation</small></div>
+            <div class="list-item"><strong>24 - Architecture Patterns</strong><br><small>Microservices, event sourcing, CQRS</small></div>
+            <div class="list-item"><strong>25 - File & Media Storage</strong><br><small>S3, uploads, CDN, image processing</small></div>
+            <div class="list-item"><strong>26 - Notifications</strong><br><small>Email, SMS, push notifications, webhooks</small></div>
+            <div class="list-item"><strong>28 - Real-World Patterns</strong><br><small>Production patterns, debugging, case studies</small></div>
+            <div class="list-item"><strong>29 - AI & Machine Learning</strong><br><small>TensorFlow, OpenAI, NLP, recommendations</small></div>
+            <div class="list-item"><strong>30 - SaaS & Multi-Tenancy</strong><br><small>Tenant isolation, billing, feature flags</small></div>
+        </div>
+    </div>
+
+    <!-- Access Guide Tab -->
+    <div id="access" class="content">
+        <h3 class="section-title">How to Access Everything</h3>
+        
+        <div class="access-info">
+            <strong>📱 You're on Mobile Access Mode</strong><br>
+            All content is optimized for your phone. Access any module directly from your laptop's IP.
+        </div>
+
+        <h4 style="color: #667eea; margin: 20px 0 10px; font-size: 16px;">Available URLs</h4>
+        <div class="list-item">
+            <strong>Homepage (Dashboard)</strong><br>
+            <code style="color: #667eea; word-break: break-all;">http://10.111.5.96:4001/</code><br>
+            <small>Shows the main Backend Mastery dashboard</small>
+        </div>
+        <div class="list-item">
+            <strong>Mobile Explorer</strong><br>
+            <code style="color: #667eea; word-break: break-all;">http://10.111.5.96:4001/explorer</code><br>
+            <small>This page - Full access to all modules</small>
+        </div>
+        <div class="list-item">
+            <strong>Login & Authentication</strong><br>
+            <code style="color: #667eea; word-break: break-all;">http://10.111.5.96:4001/auth</code><br>
+            <small>Register and login to the platform</small>
+        </div>
+        <div class="list-item">
+            <strong>Health Check</strong><br>
+            <code style="color: #667eea; word-break: break-all;">http://10.111.5.96:4001/health</code><br>
+            <small>API status and server information</small>
+        </div>
+
+        <h4 style="color: #667eea; margin: 20px 0 10px; font-size: 16px;">How to Use</h4>
+        <ol style="margin-left: 20px; color: #666; line-height: 1.8;">
+            <li><strong>Browse Modules</strong> - Click "All Modules" to see available content</li>
+            <li><strong>Search</strong> - Use search to quickly find what you need</li>
+            <li><strong>Learn</strong> - Each module contains theory, code examples, and exercises</li>
+            <li><strong>Practice</strong> - Build projects, test your knowledge, implement concepts</li>
+            <li><strong>Track Progress</strong> - Monitor your learning journey</li>
+        </ol>
+
+        <h4 style="color: #667eea; margin: 20px 0 10px; font-size: 16px;">Your Laptop IP Address</h4>
+        <div class="list-item" style="background: #f0f7ff; border-left-color: #667eea;">
+            <code style="font-size: 16px; color: #667eea; font-weight: 600;">10.111.5.96</code><br>
+            <small>Use this IP with port 4001 from any device on your network</small>
+        </div>
+
+        <h4 style="color: #667eea; margin: 20px 0 10px; font-size: 16px;">💡 Tips</h4>
+        <ul style="margin-left: 20px; color: #666; line-height: 1.8;">
+            <li>Make sure your phone is on the same WiFi network</li>
+            <li>Bookmark this page for quick access</li>
+            <li>All content updates in real-time</li>
+            <li>No installation required - everything works in your browser</li>
+        </ul>
+    </div>
+
+    <script>
+        // Featured modules data
+        const modules = [
+            { num: '01', name: 'Authentication', desc: 'JWT, OAuth2, 2FA, Security' },
+            { num: '02', name: 'Controllers & API', desc: 'REST API Design & Patterns' },
+            { num: '03', name: 'Middleware', desc: 'Express & Request Handling' },
+            { num: '04', name: 'Database & Models', desc: 'ORM, SQL, NoSQL' },
+            { num: '05', name: 'Realtime Communication', desc: 'WebSocket & Socket.io' },
+            { num: '06', name: 'Node.js Internals', desc: 'Event Loop & Performance' },
+            { num: '07', name: 'Security', desc: 'OWASP & Best Practices' },
+            { num: '08', name: 'Caching', desc: 'Redis & Performance' },
+            { num: '09', name: 'Jobs & Queues', desc: 'Bull & Background Tasks' },
+            { num: '10', name: 'Observability', desc: 'Logging & Monitoring' },
+            { num: '11', name: 'Testing', desc: 'Unit, Integration & E2E' },
+            { num: '12', name: 'DevOps & CI/CD', desc: 'Docker & Kubernetes' },
+            { num: '13', name: 'TypeScript', desc: 'Advanced Types & Patterns' },
+            { num: '14', name: 'Design Patterns', desc: 'Gang of Four & SOLID' },
+            { num: '15', name: 'Algorithms', desc: 'Data Structures & DSA' },
+            { num: '16', name: 'Network & HTTP', desc: 'TCP/IP & DNS' },
+            { num: '17', name: 'Linux & OS', desc: 'Shell & System Admin' },
+            { num: '18', name: 'Cryptography', desc: 'Encryption & Hashing' },
+            { num: '19', name: 'Payments', desc: 'Stripe & Fintech' },
+            { num: '20', name: 'Code Quality', desc: 'Git & Version Control' },
+            { num: '21', name: 'Integrations', desc: 'AWS & Microservices' },
+            { num: '22', name: 'Compliance', desc: 'GDPR & Privacy' },
+            { num: '23', name: 'i18n', desc: 'Localization & Translation' },
+            { num: '24', name: 'Architecture', desc: 'System Design Patterns' },
+            { num: '25', name: 'File Storage', desc: 'S3 & Media Management' },
+            { num: '26', name: 'Notifications', desc: 'Email, SMS & Push' },
+            { num: '28', name: 'Real-World', desc: 'Production Patterns' },
+            { num: '29', name: 'AI & ML', desc: 'Machine Learning' },
+            { num: '30', name: 'SaaS', desc: 'Multi-Tenancy & Billing' }
+        ];
+
+        function renderModules(targetId, modulesToShow) {
+            const container = document.getElementById(targetId);
+            container.innerHTML = modulesToShow.map(m => `
+                <div class="module-card">
+                    <div class="module-number">Module ${m.num}</div>
+                    <div class="module-name">${m.name}</div>
+                    <p style="font-size: 13px; color: #999; margin-top: 8px;">${m.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function filterModules() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = modules.filter(m => 
+                m.name.toLowerCase().includes(searchTerm) || 
+                m.desc.toLowerCase().includes(searchTerm)
+            );
+            renderModules('allModulesList', filtered.length > 0 ? filtered : modules);
+        }
+
+        // Initialize
+        renderModules('featuredModules', modules.slice(0, 6));
+        renderModules('allModulesList', modules);
+    </script>
+</body>
+</html>

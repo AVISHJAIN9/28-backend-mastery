@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend Mastery — Connected File Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0d;
+    --bg2: #111318;
+    --bg3: #181c22;
+    --bg4: #1e232c;
+    --border: #252b35;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; width: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: linear-gradient(90deg, var(--bg2) 0%, var(--bg3) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .title-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR - Hierarchical Tree */
+  .sidebar {
+    width: 300px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+
+  .module-group {
+    margin-bottom: 2px;
+  }
+
+  .module-header {
+    display: flex;
+    align-items: center;
+    padding: 6px 14px;
+    cursor: pointer;
+    gap: 8px;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+  }
+  .module-header:hover { background: var(--bg3); }
+  .module-header.active { background: var(--bg3); border-left-color: var(--accent); }
+
+  .chevron {
+    transition: transform .2s;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .module-header[data-open="true"] .chevron { transform: rotate(90deg); }
+
+  .module-name {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted2);
+    flex: 1;
+  }
+
+  .type-icon {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .types-list {
+    display: none;
+  }
+  .types-list[data-open="true"] { display: block; }
+
+  .type-item {
+    padding: 5px 14px 5px 50px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--muted2);
+    transition: all .15s;
+    border-left: 2px solid transparent;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .type-item:hover { background: var(--bg3); color: var(--text); }
+  .type-item.active { background: var(--bg4); color: var(--text); border-left-color: var(--accent); }
+
+  .type-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .type-item.written .type-dot { background: var(--green); }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .content-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .content-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .content-main {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    gap: 16px;
+    padding: 24px;
+  }
+
+  /* FILES PANEL */
+  .files-panel {
+    width: 280px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .files-header {
+    padding: 10px 14px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .files-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .file-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all .15s;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .file-item:last-child { border-bottom: none; }
+  .file-item:hover { background: var(--bg4); }
+  .file-item.active { background: var(--accent); color: white; border-left-color: var(--accent); }
+
+  .file-icon { font-size: 14px; }
+
+  /* PREVIEW PANEL */
+  .preview-panel {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .preview-header {
+    padding: 12px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .preview-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .preview-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .preview-status {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--green);
+  }
+  .preview-status.empty {
+    background: rgba(100, 116, 139, 0.15);
+    color: var(--muted);
+  }
+
+  .preview-btn {
+    padding: 4px 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    display: none;
+  }
+  .preview-btn.show { display: inline-block; }
+  .preview-btn:hover { transform: scale(1.05); opacity: 0.9; }
+  .preview-btn:active { transform: scale(0.95); }
+
+  .preview-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: var(--text);
+  }
+
+  .preview-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">
+    <div class="title-icon">🔗</div>
+    <span>Backend Mastery</span>
+    <span style="color: var(--muted); font-weight: 400;">File Browser</span>
+  </div>
+  <div class="status">
+    <div class="status-dot"></div>
+    <span id="statusText">Connecting...</span>
+  </div>
+</header>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-scroll" id="sidebarScroll"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="content-header">
+      <div class="breadcrumb" id="breadcrumb">—</div>
+      <div class="content-title" id="contentTitle">Select a type</div>
+    </div>
+
+    <div class="content-main">
+      <!-- FILES -->
+      <div class="files-panel">
+        <div class="files-header">📄 Files</div>
+        <div class="files-list" id="filesList"></div>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="preview-panel">
+        <div class="preview-header">
+          <div class="preview-info">
+            <div class="preview-name" id="previewName">—</div>
+            <div class="preview-status" id="previewStatus">empty</div>
+          </div>
+          <button class="preview-btn" id="previewBtn" onclick="openPreview()">▶ Preview</button>
+        </div>
+        <div class="preview-content" id="previewContent" class="preview-empty">Select a file to preview</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:4444';
+const POLL = 3000;
+
+let catalog = [];
+let selectedType = null;
+let selectedTypePath = null;
+let selectedModule = null;
+
+async function loadCatalog() {
+  try {
+    const res = await fetch(`${API}/catalog`);
+    catalog = await res.json();
+    renderSidebar();
+    document.getElementById('statusText').textContent = '✅ Connected';
+  } catch (e) {
+    document.getElementById('statusText').textContent = '❌ Connection failed';
+  }
+}
+
+function renderSidebar() {
+  const scroll = document.getElementById('sidebarScroll');
+  scroll.innerHTML = '';
+
+  catalog.forEach(module => {
+    const group = document.createElement('div');
+    group.className = 'module-group';
+
+    const header = document.createElement('div');
+    header.className = 'module-header';
+    header.setAttribute('data-open', 'false');
+    header.innerHTML = `
+      <span class="chevron">›</span>
+      <span class="module-name">${module.dir}</span>
+      <span class="type-icon">${module.topicCount}</span>
+    `;
+
+    const typesList = document.createElement('div');
+    typesList.className = 'types-list';
+    typesList.setAttribute('data-open', 'false');
+
+    module.topics.forEach(topic => {
+      const item = document.createElement('div');
+      item.className = 'type-item';
+      if (topic.writtenCount > 0) item.classList.add('written');
+
+      item.innerHTML = `
+        <span class="type-dot"></span>
+        <span>${topic.name}</span>
+      `;
+
+      item.onclick = () => {
+        document.querySelectorAll('.type-item').forEach(e => e.classList.remove('active'));
+        item.classList.add('active');
+        
+        selectedType = topic.name;
+        selectedTypePath = module.dir + '/' + topic.name;
+        selectedModule = module.dir;
+        
+        document.getElementById('breadcrumb').textContent = module.dir + ' / ' + topic.name;
+        document.getElementById('contentTitle').textContent = topic.name.replace(/-/g, ' ');
+        
+        loadTypeFiles(selectedTypePath);
+      };
+
+      typesList.appendChild(item);
+    });
+
+    header.onclick = () => {
+      const open = header.getAttribute('data-open') === 'true';
+      header.setAttribute('data-open', !open);
+      typesList.setAttribute('data-open', !open);
+    };
+
+    group.appendChild(header);
+    group.appendChild(typesList);
+    scroll.appendChild(group);
+  });
+}
+
+async function loadTypeFiles(path) {
+  const filesList = document.getElementById('filesList');
+  filesList.innerHTML = '';
+
+  try {
+    const res = await fetch(`${API}/topic-files?path=${encodeURIComponent(path)}`);
+    const files = await res.json();
+
+    files.filter(f => !f.isDir).forEach((file, idx) => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      if (idx === 0) item.classList.add('active');
+
+      const icon = getIcon(file.name);
+      item.innerHTML = `<span class="file-icon">${icon}</span><span>${file.name}</span>`;
+      item.onclick = () => {
+        document.querySelectorAll('.file-item').forEach(e => e.classList.remove('active'));
+        item.classList.add('active');
+        showPreview(file, path);
+      };
+
+      filesList.appendChild(item);
+    });
+
+    if (files.length > 0 && files[0].name) {
+      showPreview(files[0], path);
+    }
+  } catch (e) {
+    console.error('Error:', e);
+  }
+}
+
+function getIcon(name) {
+  if (name.endsWith('.js')) return '⚙️';
+  if (name.endsWith('.jsx')) return '⚛️';
+  if (name.endsWith('.md')) return '📝';
+  if (name.endsWith('.env')) return '🔑';
+  if (name.endsWith('.json')) return '📋';
+  if (name.endsWith('.html')) return '🌐';
+  return '📄';
+}
+
+async function showPreview(file, basePath) {
+  const name = document.getElementById('previewName');
+  const status = document.getElementById('previewStatus');
+  const content = document.getElementById('previewContent');
+  const btn = document.getElementById('previewBtn');
+
+  name.textContent = file.name;
+
+  // Show preview button for non-directory files
+  if (!file.isDir) {
+    btn.classList.add('show');
+  } else {
+    btn.classList.remove('show');
+  }
+
+  if (file.isDir) {
+    status.className = 'preview-status empty';
+    status.textContent = 'folder';
+    content.className = 'preview-content preview-empty';
+    content.textContent = '(Directory)';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/file?path=${encodeURIComponent(basePath + '/' + file.name)}`);
+    const data = await res.json();
+
+    if (!data.content) {
+      status.className = 'preview-status empty';
+      status.textContent = 'empty';
+      content.className = 'preview-content preview-empty';
+      content.textContent = '(File is empty)';
+      return;
+    }
+
+    status.className = 'preview-status';
+    status.textContent = 'written';
+    
+    let text = data.content;
+    if (data.errors && data.errors.length > 0) {
+      text += '\n\n' + '═'.repeat(60) + '\n⚠️  ERRORS:\n' + '═'.repeat(60) + '\n\n';
+      data.errors.forEach(e => {
+        text += `[${e.type.toUpperCase()}] ${e.msg}\n`;
+      });
+    }
+
+    content.className = 'preview-content';
+    content.textContent = text;
+  } catch (e) {
+    status.className = 'preview-status';
+    status.textContent = 'error';
+    content.className = 'preview-content';
+    content.textContent = 'Error loading file:\n' + e.message;
+  }
+}
+
+loadCatalog();
+setInterval(loadCatalog, POLL);
+
+function openPreview() {
+  if (!selectedType || !selectedModule) return;
+  
+  // Extract module number (e.g., "01" from "01-authentication")
+  const moduleNum = selectedModule.split('-')[0];
+  
+  // Construct demo filename (e.g., "01-user-login-register-demo.html")
+  const sanitizedType = selectedType.replace(/^\d+-/, '').toLowerCase();
+  const demoFileName = `${moduleNum}-${sanitizedType}-demo.html`;
+  
+  // Open the demo file in a new window
+  window.open(demoFileName, 'preview', 'width=1200,height=800,resizable=yes,scrollbars=yes');
+}
+
+</script>
+</body>
+</html>

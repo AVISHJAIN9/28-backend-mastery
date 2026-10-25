@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Login & Register</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 { color: #333; margin-bottom: 30px; text-align: center; font-size: 24px; }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .toggle-btn {
+            background: none;
+            color: #667eea;
+            text-decoration: underline;
+            padding: 0;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        .toggle-btn:hover { color: #764ba2; }
+        .error { color: #d32f2f; font-size: 14px; margin-top: 5px; }
+        .success { color: #388e3c; font-size: 14px; margin-top: 5px; }
+        .message { margin-bottom: 20px; padding: 12px; border-radius: 5px; display: none; }
+        .error-msg { background: #ffebee; color: #c62828; display: block; }
+        .success-msg { background: #e8f5e9; color: #2e7d32; display: block; }
+        .user-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            background: #d32f2f;
+        }
+        #name-group { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="message" class="message"></div>
+        
+        <div id="loginForm">
+            <h1>Login</h1>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Enter your email" />
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter your password" />
+            </div>
+            <button onclick="handleLogin(event)">Login</button>
+            <button class="toggle-btn" onclick="toggleForm()">Don't have an account? Register</button>
+        </div>
+
+        <div id="registerForm" style="display:none;">
+            <h1>Register</h1>
+            <div class="form-group" id="name-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" placeholder="Enter your full name" />
+            </div>
+            <div class="form-group">
+                <label for="reg-email">Email:</label>
+                <input type="email" id="reg-email" placeholder="Enter your email" />
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Password:</label>
+                <input type="password" id="reg-password" placeholder="Enter a password (min 8 chars)" />
+            </div>
+            <button onclick="handleRegister(event)">Register</button>
+            <button class="toggle-btn" onclick="toggleForm()">Already have an account? Login</button>
+        </div>
+
+        <div id="userPanel" style="display:none;">
+            <h1>Welcome!</h1>
+            <div class="user-info">
+                <p><strong>Name:</strong> <span id="userName"></span></p>
+                <p><strong>Email:</strong> <span id="userEmail"></span></p>
+                <p><strong>Role:</strong> <span id="userRole"></span></p>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = `http://${window.location.hostname}:4001/auth`;
+        let token = localStorage.getItem('token');
+
+        if (token) {
+            checkAuth();
+        }
+
+        function toggleForm() {
+            document.getElementById('loginForm').style.display = 
+                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = 
+                document.getElementById('registerForm').style.display === 'none' ? 'block' : 'none';
+            clearMessage();
+        }
+
+        function showMessage(text, isError = false) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + (isError ? 'error-msg' : 'success-msg');
+            msg.style.display = 'block';
+        }
+
+        function clearMessage() {
+            document.getElementById('message').style.display = 'none';
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            if (!name || !email || !password) {
+                showMessage('All fields are required', true);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+                showMessage('Registration successful! Logging in...');
+                document.getElementById('reg-email').value = email;
+                document.getElementById('reg-password').value = password;
+                setTimeout(() => handleLogin({ preventDefault: () => {} }), 1000);
+            } catch (err) {
+                showMessage(err.message, true);
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value || document.getElementById('reg-email').value;
+            const password = document.getElementById('password').value || document.getElementById('reg-password').value;
+
+            if (!email || !password) {
+                showMessage('Email and password are required', true);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Login failed');
+
+                token = data.token;
+                localStorage.setItem('token', token);
+                showMessage('Login successful!');
+                setTimeout(() => checkAuth(), 500);
+            } catch (err) {
+                showMessage(err.message, true);
+            }
+        }
+
+        async function checkAuth() {
+            if (!token) {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('userPanel').style.display = 'none';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Unauthorized');
+
+                const data = await res.json();
+                document.getElementById('userName').textContent = data.name;
+                document.getElementById('userEmail').textContent = data.email;
+                document.getElementById('userRole').textContent = data.role;
+
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('userPanel').style.display = 'block';
+            } catch {
+                token = null;
+                localStorage.removeItem('token');
+                checkAuth();
+            }
+        }
+
+        function handleLogout() {
+            token = null;
+            localStorage.removeItem('token');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            checkAuth();
+            showMessage('Logged out successfully!');
+        }
+    </script>
+</body>
+</html>

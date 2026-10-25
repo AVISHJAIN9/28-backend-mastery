@@ -1,0 +1,15 @@
+
+🚀 DevVault Watcher Enhanced Running on http://localhost:4444
+📂 Watching: /Users/avishjain/Downloads/backend-mastery
+
+Available Endpoints:
+  • /catalog - Full module catalog with progress
+  • /topic-files?path=xx-module/topic - List all files in a topic
+  • /file?path=xx-module/topic/file.js - Get file content + errors
+  • /topic-errors?path=xx-module/topic - Get all errors in topic
+  • /ping - Health check
+
+→ Open in browser:
+   • devvault.html (original)
+   • master-revisions.html (unified dashboard)
+

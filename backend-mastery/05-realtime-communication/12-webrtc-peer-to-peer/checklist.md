@@ -1,0 +1,8 @@
+- [ ] Implement signaling server
+- [ ] Create offer/answer flow
+- [ ] Exchange ICE candidates
+- [ ] Test local P2P
+- [ ] Add STUN server
+- [ ] Add TURN server
+- [ ] Test video/audio
+- [ ] Monitor connection quality

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><title>Preview: 2FA / TOTP / OTP</title>
+<style>
+  :root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3e;--text:#e2e8f0;--muted:#64748b;--accent:#f59e0b;--green:#22c55e;--red:#ef4444;--font:'JetBrains Mono',monospace;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .wrap{width:100%;max-width:800px;display:flex;flex-direction:column;gap:16px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;}
+  .base-card{display:flex;align-items:center;gap:12px;}
+  h2{font-size:13px;font-weight:700;margin-bottom:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:10px;}
+  input{width:100%;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;}
+  input:focus{border-color:var(--accent);}
+  .row{display:flex;gap:10px;}
+  .row input{flex:1;}
+  button{padding:9px 18px;background:var(--accent);border:none;border-radius:6px;color:#000;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;}
+  button:hover{opacity:.85;}
+  .res{margin-top:12px;background:#0f1117;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:11px;min-height:50px;white-space:pre-wrap;word-break:break-all;}
+  .res.ok{border-color:var(--green);color:var(--green);}
+  .res.err{border-color:var(--red);color:var(--red);}
+  .qr-img{max-width:200px;border:1px solid var(--border);border-radius:8px;display:none;margin-top:12px;}
+  .step{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:8px;}
+  .step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+  .otp-input{letter-spacing:8px;text-align:center;font-size:20px;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card base-card">
+    <span style="font-size:11px;color:var(--muted);white-space:nowrap">API BASE</span>
+    <input id="baseUrl" value="http://localhost:5000">
+    <label style="margin:0;white-space:nowrap;font-size:11px;color:var(--muted)">Token</label>
+    <input id="authToken" placeholder="Bearer token from login" style="font-size:11px;">
+  </div>
+
+  <div class="card">
+    <div class="step"><div class="step-num">1</div> Enable 2FA — generates QR code + secret</div>
+    <button onclick="enable2FA()">Enable 2FA →</button>
+    <div class="res" id="enableRes">Response will appear here…</div>
+    <img class="qr-img" id="qrImg" alt="QR Code">
+  </div>
+
+  <div class="card">
+    <div class="step"><div class="step-num">2</div> Verify TOTP — scan QR with Google Authenticator, enter 6-digit code</div>
+    <label>6-digit TOTP code from authenticator app</label>
+    <input id="totpCode" class="otp-input" placeholder="123456" maxlength="6" type="tel">
+    <button style="margin-top:12px;" onclick="verifyTOTP()">Verify →</button>
+    <div class="res" id="verifyRes">Response will appear here…</div>
+  </div>
+
+  <div class="card">
+    <div class="step"><div class="step-num">3</div> Login with 2FA — test the full flow</div>
+    <div class="row">
+      <div style="flex:1"><label>Email</label><input id="email2fa" placeholder="user@example.com"></div>
+      <div style="flex:1"><label>Password</label><input id="pass2fa" type="password" placeholder="password"></div>
+    </div>
+    <label>TOTP Code</label>
+    <input id="loginOtp" class="otp-input" placeholder="123456" maxlength="6" type="tel">
+    <button style="margin-top:12px;" onclick="loginWith2FA()">Login with 2FA →</button>
+    <div class="res" id="login2faRes">Response will appear here…</div>
+  </div>
+
+  <div class="card">
+    <div class="step"><div class="step-num">4</div> Disable 2FA</div>
+    <label>Current TOTP Code to confirm</label>
+    <input id="disableOtp" class="otp-input" placeholder="123456" maxlength="6" type="tel">
+    <button style="margin-top:12px;background:var(--red);color:white;" onclick="disable2FA()">Disable 2FA</button>
+    <div class="res" id="disableRes">Response will appear here…</div>
+  </div>
+</div>
+
+<script>
+  function base(){return document.getElementById('baseUrl').value.replace(/\/$/,'');}
+  function getToken(){return document.getElementById('authToken').value;}
+
+  async function req(method,path,body,elId){
+    const el=document.getElementById(elId);
+    el.className='res'; el.textContent='Loading…';
+    try{
+      const h={'Content-Type':'application/json','Authorization':'Bearer '+getToken()};
+      const r=await fetch(base()+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+      const d=await r.json();
+      el.className='res '+(r.ok?'ok':'err');
+      el.textContent=JSON.stringify(d,null,2);
+      return {ok:r.ok,data:d};
+    }catch(e){
+      el.className='res err'; el.textContent='❌ '+e.message;
+      return {ok:false};
+    }
+  }
+
+  async function enable2FA(){
+    const {ok,data}=await req('POST','/api/auth/2fa/enable',{},'enableRes');
+    if(ok&&data){
+      const qr=data.qrCode||data.qr_code||data.otpauth_url||'';
+      if(qr.startsWith('data:image')){
+        document.getElementById('qrImg').src=qr;
+        document.getElementById('qrImg').style.display='block';
+      }
+    }
+  }
+
+  async function verifyTOTP(){
+    await req('POST','/api/auth/2fa/verify',{token:document.getElementById('totpCode').value},'verifyRes');
+  }
+
+  async function loginWith2FA(){
+    await req('POST','/api/auth/login',{
+      email:document.getElementById('email2fa').value,
+      password:document.getElementById('pass2fa').value,
+      totpCode:document.getElementById('loginOtp').value
+    },'login2faRes');
+  }
+
+  async function disable2FA(){
+    await req('POST','/api/auth/2fa/disable',{token:document.getElementById('disableOtp').value},'disableRes');
+  }
+</script>
+</body></html>

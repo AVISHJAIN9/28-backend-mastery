@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux CLI Tools - Interactive Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Monaco', 'Menlo', monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    h1 { color: #4ec9b0; margin: 20px 0; }
+    .tool { background: #252526; padding: 20px; margin: 20px 0; border-left: 4px solid #007acc; }
+    .input-group { margin: 15px 0; }
+    label { display: block; color: #9cdcfe; margin-bottom: 5px; font-weight: bold; }
+    input, textarea, select { width: 100%; padding: 8px; background: #1e1e1e; color: #d4d4d4; border: 1px solid #3e3e42; border-radius: 4px; font-family: inherit; }
+    button { background: #007acc; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+    button:hover { background: #005a9e; }
+    .output { background: #1e1e1e; border: 1px solid #3e3e42; padding: 15px; margin-top: 10px; max-height: 200px; overflow-y: auto; border-radius: 4px; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    .success { color: #4ec9b0; }
+    .error { color: #f48771; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🐧 Linux CLI Tools - Interactive Preview</h1>
+    
+    <!-- grep -->
+    <div class="tool">
+      <h2>grep - Pattern Search</h2>
+      <div class="input-group">
+        <label>Pattern (regex):</label>
+        <input type="text" id="grepPattern" placeholder="e.g., error|warning">
+      </div>
+      <div class="input-group">
+        <label>Text to search:</label>
+        <textarea id="grepText" rows="4" placeholder="Paste text here..."></textarea>
+      </div>
+      <button onclick="testGrep()">Test grep</button>
+      <div id="grepOutput" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- awk -->
+    <div class="tool">
+      <h2>awk - Data Processing</h2>
+      <div class="input-group">
+        <label>Data (format: field1:field2;val1:val2):</label>
+        <input type="text" id="awkData" placeholder="name:age:city;John:25:NYC;Jane:30:LA">
+      </div>
+      <button onclick="testAwk()">Test awk</button>
+      <div id="awkOutput" class="output" style="display:none;"></div>
+    </div>
+
+    <!-- curl -->
+    <div class="tool">
+      <h2>curl - HTTP Request</h2>
+      <div class="input-group">
+        <label>URL:</label>
+        <input type="text" id="curlUrl" placeholder="https://api.example.com">
+      </div>
+      <div class="input-group">
+        <label>Method:</label>
+        <select id="curlMethod">
+          <option>GET</option>
+          <option>POST</option>
+          <option>PUT</option>
+          <option>DELETE</option>
+        </select>
+      </div>
+      <button onclick="testCurl()">Test curl</button>
+      <div id="curlOutput" class="output" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:5701/api';
+
+    async function testGrep() {
+      const pattern = document.getElementById('grepPattern').value;
+      const text = document.getElementById('grepText').value;
+      const output = document.getElementById('grepOutput');
+
+      if (!pattern || !text) {
+        output.innerHTML = '<span class="error">Error: Pattern and text required</span>';
+        output.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/grep?pattern=${encodeURIComponent(pattern)}&text=${encodeURIComponent(text)}`);
+        const data = await response.json();
+        output.innerHTML = `<span class="success">✓ Matches: ${data.matches}</span>\\n\\n<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        output.style.display = 'block';
+      } catch (err) {
+        output.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+        output.style.display = 'block';
+      }
+    }
+
+    async function testAwk() {
+      const data = document.getElementById('awkData').value;
+      const output = document.getElementById('awkOutput');
+
+      if (!data) {
+        output.innerHTML = '<span class="error">Error: Data required</span>';
+        output.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/awk?data=${encodeURIComponent(data)}`);
+        const result = await response.json();
+        output.innerHTML = `<span class="success">✓ Records: ${result.records}</span>\\n\\n<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        output.style.display = 'block';
+      } catch (err) {
+        output.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+        output.style.display = 'block';
+      }
+    }
+
+    async function testCurl() {
+      const url = document.getElementById('curlUrl').value;
+      const method = document.getElementById('curlMethod').value;
+      const output = document.getElementById('curlOutput');
+
+      if (!url) {
+        output.innerHTML = '<span class="error">Error: URL required</span>';
+        output.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/curl?url=${encodeURIComponent(url)}&method=${method}`);
+        const data = await response.json();
+        output.innerHTML = `<span class="success">✓ ${method} Request</span>\\n\\n<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        output.style.display = 'block';
+      } catch (err) {
+        output.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+        output.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

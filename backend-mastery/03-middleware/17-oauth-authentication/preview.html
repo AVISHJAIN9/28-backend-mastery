@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>17 - OAuth Authentication</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+    .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .header p { font-size: 1.1em; opacity: 0.9; }
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      padding: 40px;
+    }
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .section h2 {
+      color: #333;
+      font-size: 1.3em;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #555;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0); }
+    .response-box {
+      background: #f5f5f5;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success { border-left-color: #10b981; color: #10b981; }
+    .error { border-left-color: #ef4444; color: #ef4444; }
+    @media (max-width: 768px) {
+      .content { grid-template-columns: 1fr; }
+      .header h1 { font-size: 1.8em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔐 OAuth Authentication</h1>
+      <p>Test OAuth 2.0 and social login integration</p>
+    </div>
+    
+    <div class="content">
+      <div class="section">
+        <h2>OAuth Configuration</h2>
+        
+        <label>OAuth Provider:</label>
+        <select id="provider">
+          <option value="google">Google</option>
+          <option value="github">GitHub</option>
+          <option value="facebook">Facebook</option>
+        </select>
+        
+        <label>Authorization Code:</label>
+        <input type="text" id="authCode" placeholder="Enter authorization code">
+        
+        <label>Access Token:</label>
+        <input type="text" id="accessToken" placeholder="Leave empty to use auth code flow">
+        
+        <label>Endpoint:</label>
+        <select id="endpoint">
+          <option value="http://localhost:4017/oauth/callback">POST /oauth/callback</option>
+          <option value="http://localhost:4017/oauth/profile">GET /oauth/profile</option>
+          <option value="http://localhost:4017/oauth/logout">POST /oauth/logout</option>
+        </select>
+        
+        <button onclick="sendOAuthRequest()">Authenticate</button>
+      </div>
+      
+      <div class="section">
+        <h2>Response</h2>
+        <div id="response" class="response-box">
+          Waiting for authentication...
+        </div>
+        <div id="userInfo" style="background: #f0f9ff; padding: 15px; border-radius: 6px; margin-top: 15px; display: none;">
+          <h3>User Profile:</h3>
+          <p><strong>Name:</strong> <span id="userName">-</span></p>
+          <p><strong>Email:</strong> <span id="userEmail">-</span></p>
+          <p><strong>Provider:</strong> <span id="userProvider">-</span></p>
+          <p><strong>OAuth ID:</strong> <span id="userOAuthId">-</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function sendOAuthRequest() {
+      const provider = document.getElementById('provider').value;
+      const authCode = document.getElementById('authCode').value;
+      const accessToken = document.getElementById('accessToken').value;
+      const endpoint = document.getElementById('endpoint').value;
+      const responseDiv = document.getElementById('response');
+      
+      try {
+        const body = {
+          provider,
+          ...(authCode && { code: authCode }),
+          ...(accessToken && { access_token: accessToken })
+        };
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        
+        const data = await response.json();
+        
+        responseDiv.className = 'response-box ' + (response.status >= 400 ? 'error' : 'success');
+        responseDiv.textContent = JSON.stringify(data, null, 2);
+        
+        if (response.status < 400 && data.user) {
+          document.getElementById('userName').textContent = data.user.name || '-';
+          document.getElementById('userEmail').textContent = data.user.email || '-';
+          document.getElementById('userProvider').textContent = provider;
+          document.getElementById('userOAuthId').textContent = data.user.id || '-';
+          document.getElementById('userInfo').style.display = 'block';
+        }
+      } catch (error) {
+        responseDiv.className = 'response-box error';
+        responseDiv.textContent = 'Error: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>

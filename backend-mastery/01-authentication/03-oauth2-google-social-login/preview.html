@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 03: OAuth2 Google Social Login - Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .flow-diagram {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+        
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .step h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .step p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .code {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .button-area {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-google:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #4a5fc1;
+            color: white;
+        }
+        
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #0288d1;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .info-box strong {
+            color: #0288d1;
+        }
+        
+        .security-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .security-box strong {
+            color: #ff9800;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-item {
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .comparison-item h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .traditional {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        
+        .oauth {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #666;
+        }
+        
+        .list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .endpoint {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        
+        .endpoint-method {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card h4 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 600px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 OAuth2 Google Social Login</h1>
+            <p>Secure authentication using Google accounts</p>
+        </div>
+        
+        <div class="content">
+            <!-- What is OAuth2 -->
+            <div class="section">
+                <h2>What is OAuth2?</h2>
+                <p>OAuth2 is an open standard for authorization that allows users to sign in using their existing Google account instead of creating a new username/password.</p>
+                
+                <div class="comparison">
+                    <div class="comparison-item traditional">
+                        <h4>Traditional Login</h4>
+                        <ul class="list">
+                            <li>User creates account</li>
+                            <li>Stores password</li>
+                            <li>Manages password reset</li>
+                            <li>Responsible for security</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-item oauth">
+                        <h4>OAuth2 Login</h4>
+                        <ul class="list">
+                            <li>User clicks "Sign in with Google"</li>
+                            <li>Redirects to Google</li>
+                            <li>Google handles password</li>
+                            <li>You receive trusted token</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>Key Benefit:</strong> You never store user passwords. Google handles authentication securely.
+                </div>
+            </div>
+            
+            <!-- OAuth2 Flow -->
+            <div class="section">
+                <h2>OAuth2 Authentication Flow</h2>
+                
+                <div class="flow-diagram">
+┌─────────────┐          ┌──────────┐          ┌────────────┐
+│   Your App  │          │   User   │          │   Google   │
+└──────┬──────┘          └────┬─────┘          └─────┬──────┘
+       │                      │                      │
+       │  1. Show Google      │                      │
+       │     Login Button     │                      │
+       ├─────────────────────→│                      │
+       │                      │  2. Click Login      │
+       │                      │                      │
+       │                      │  3. Redirect to      │
+       │                      │     Google + State   │
+       │                      ├─────────────────────→│
+       │                      │                      │
+       │                      │  4. User signs in    │
+       │                      │     (at Google)      │
+       │                      │                      │
+       │                      │  5. Google callback  │
+       │                      │     with code        │
+       │                      │←─────────────────────┤
+       │                      │                      │
+       │  6. Send code to     │                      │
+       │     backend          │                      │
+       │←─────────────────────┤                      │
+       │                      │                      │
+       │  7. Exchange code    │                      │
+       │     for tokens       │                      │
+       ├─────────────────────────────────────────────→
+       │                      │                      │
+       │ 8. Google returns    │                      │
+       │    ID token + info   │                      │
+       │←─────────────────────────────────────────────┤
+       │                      │                      │
+       │  9. Create user if   │                      │
+       │     new (signed in)  │                      │
+       │                      │                      │
+       │ 10. Return JWT token │                      │
+       │←─────────────────────┤                      │
+       │                      │                      │
+       │    Now authenticated │                      │
+       │    (has JWT token)   │                      │
+       │                      │                      │
+                </div>
+            </div>
+            
+            <!-- Key Concepts -->
+            <div class="section">
+                <h2>Key Concepts</h2>
+                
+                <div class="step">
+                    <h3>1. Authorization Code</h3>
+                    <p>Temporary code from Google that your backend exchanges for tokens.</p>
+                    <div class="code">
+code=4/0AY-t7... (expires in 10 minutes)
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>2. State Parameter</h3>
+                    <p>Random string to prevent CSRF attacks. Ensures callback came from Google.</p>
+                    <div class="code">
+state=a3f5k9m1p2... (unique, stored server-side)
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>3. ID Token</h3>
+                    <p>JWT containing user info (email, name, picture) signed by Google.</p>
+                    <div class="code">
+id_token=eyJhbGc... (JWT containing user claims)
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>4. Access Token</h3>
+                    <p>Token to access Google APIs on behalf of user (optional).</p>
+                    <div class="code">
+access_token=ya29... (can call Google APIs)
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Features -->
+            <div class="section">
+                <h2>Security Features</h2>
+                
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h4>No Password Storage</h4>
+                        <p>You never receive or store user passwords</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h4>CSRF Protection</h4>
+                        <p>State parameter validates callback origin</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✔️</div>
+                        <h4>Token Validation</h4>
+                        <p>ID token verified with Google's public key</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⏱️</div>
+                        <h4>Token Expiry</h4>
+                        <p>Codes and tokens expire automatically</p>
+                    </div>
+                </div>
+                
+                <div class="security-box">
+                    <strong>🔐 Redirect URI Validation:</strong> Google verifies redirect_uri matches registered URI. Prevents authorization code from being stolen.
+                </div>
+            </div>
+            
+            <!-- API Endpoints -->
+            <div class="section">
+                <h2>API Endpoints</h2>
+                
+                <div class="endpoint">
+                    <span class="endpoint-method">GET</span> /auth/google/url
+                </div>
+                <p>Get Google OAuth authorization URL</p>
+                <div class="code">
+{
+  "authUrl": "https://accounts.google.com/o/oauth2/v2/auth?..."
+}
+                </div>
+                
+                <div class="endpoint">
+                    <span class="endpoint-method">GET</span> /auth/google/callback?code=...&state=...
+                </div>
+                <p>Handle Google callback (user redirected here)</p>
+                <div class="code">
+{
+  "user": {
+    "id": "uuid",
+    "email": "user@gmail.com",
+    "name": "John Doe",
+    "picture": "https://..."
+  },
+  "tokens": {
+    "accessToken": "jwt...",
+    "refreshToken": "jwt..."
+  }
+}
+                </div>
+                
+                <div class="endpoint">
+                    <span class="endpoint-method">POST</span> /auth/google/logout
+                </div>
+                <p>Logout user (invalidate tokens)</p>
+            </div>
+            
+            <!-- How to Test -->
+            <div class="section">
+                <h2>How to Test This Module</h2>
+                
+                <div class="step">
+                    <h3>Step 1: Get Authorization URL</h3>
+                    <p>Backend returns Google OAuth URL with proper parameters</p>
+                    <div class="button-area">
+                        <button class="btn btn-primary">GET /auth/google/url</button>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 2: Click Google Login Button</h3>
+                    <p>Frontend redirects to Google login page</p>
+                    <div class="button-area">
+                        <button class="btn btn-google">
+                            <span>🔵</span> Sign in with Google
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 3: User Signs In (at Google)</h3>
+                    <p>Google handles authentication securely</p>
+                    <div class="info-box">
+                        <strong>Note:</strong> You don't handle password here. Google does.
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 4: Backend Receives Code</h3>
+                    <p>Google redirects back with authorization code</p>
+                    <div class="code">
+Redirect: http://localhost:3000/callback?code=4/0AY&state=abc123
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 5: Exchange Code for Tokens</h3>
+                    <p>Backend exchanges code with Google for user info</p>
+                    <div class="button-area">
+                        <button class="btn btn-secondary">Exchange Code for Tokens</button>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 6: User is Authenticated</h3>
+                    <p>Backend returns JWT tokens and user info</p>
+                    <div class="info-box">
+                        <strong>Result:</strong> User logged in, can access protected routes
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Real World Examples -->
+            <div class="section">
+                <h2>Real-World Examples</h2>
+                
+                <div class="step">
+                    <h3>GitHub</h3>
+                    <p>"Sign in with GitHub" uses OAuth2. You never give GitHub your GitHub password.</p>
+                </div>
+                
+                <div class="step">
+                    <h3>Figma</h3>
+                    <p>Sign in with Google, Apple, GitHub - all use OAuth2</p>
+                </div>
+                
+                <div class="step">
+                    <h3>Spotify</h3>
+                    <p>Login with Facebook, Apple, or create account - Facebook uses OAuth2</p>
+                </div>
+                
+                <div class="step">
+                    <h3>Airbnb</h3>
+                    <p>Sign up with Google, Facebook, Apple - all OAuth2</p>
+                </div>
+            </div>
+            
+            <!-- Quick Start -->
+            <div class="section">
+                <h2>Quick Start</h2>
+                
+                <ol style="padding-left: 20px; color: #666;">
+                    <li style="margin-bottom: 10px;">Get Google OAuth credentials from <strong>Google Cloud Console</strong>
+                        <div class="code" style="margin-top: 5px;">
+client_id: xxx.apps.googleusercontent.com
+client_secret: XXXXXX
+redirect_uri: http://localhost:3000/callback
+                        </div>
+                    </li>
+                    <li style="margin-bottom: 10px;">Set environment variables in <code>.env</code>
+                        <div class="code" style="margin-top: 5px;">
+GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=XXXXXX
+GOOGLE_REDIRECT_URI=http://localhost:3000/callback
+                        </div>
+                    </li>
+                    <li style="margin-bottom: 10px;">Start the server: <code>node server.js</code></li>
+                    <li style="margin-bottom: 10px;">Click "Sign in with Google" button in frontend</li>
+                    <li>Check user is created in backend and authenticated</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

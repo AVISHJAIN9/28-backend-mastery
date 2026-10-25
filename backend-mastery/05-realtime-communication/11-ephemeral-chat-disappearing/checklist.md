@@ -1,0 +1,8 @@
+- [ ] Implement TTL storage
+- [ ] Add expiry tracking
+- [ ] Show countdown timer
+- [ ] Delete on read
+- [ ] Test auto-deletion
+- [ ] Verify privacy
+- [ ] Monitor storage
+- [ ] Handle edge cases

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18 - Request Sanitization</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+    .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .header p { font-size: 1.1em; opacity: 0.9; }
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      padding: 40px;
+    }
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .section h2 {
+      color: #333;
+      font-size: 1.3em;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #555;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0); }
+    .response-box {
+      background: #f5f5f5;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success { border-left-color: #10b981; color: #10b981; }
+    .error { border-left-color: #ef4444; color: #ef4444; }
+    @media (max-width: 768px) {
+      .content { grid-template-columns: 1fr; }
+      .header h1 { font-size: 1.8em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🛡️ Request Sanitization</h1>
+      <p>Test XSS prevention and input sanitization</p>
+    </div>
+    
+    <div class="content">
+      <div class="section">
+        <h2>Input Data</h2>
+        
+        <label>User Input (may contain malicious scripts):</label>
+        <textarea id="userInput" placeholder='Enter text (e.g., <script>alert("XSS")</script>)'></textarea>
+        
+        <label>Email:</label>
+        <input type="email" id="email" placeholder="user@example.com">
+        
+        <label>Name:</label>
+        <input type="text" id="name" placeholder="John Doe">
+        
+        <label>Endpoint:</label>
+        <select id="endpoint" style="width: 100%;">
+          <option value="http://localhost:4018/api/comments">POST /api/comments</option>
+          <option value="http://localhost:4018/api/sanitize">POST /api/sanitize</option>
+        </select>
+        
+        <button onclick="sendSanitizedRequest()">Sanitize & Submit</button>
+      </div>
+      
+      <div class="section">
+        <h2>Response & Sanitization Report</h2>
+        <div id="response" class="response-box">
+          Waiting for submission...
+        </div>
+        <div id="sanitizationReport" style="background: #f0f9ff; padding: 15px; border-radius: 6px; margin-top: 15px; display: none;">
+          <h3>Sanitization Applied:</h3>
+          <p><strong>Original:</strong> <span id="original" style="display: block; word-break: break-all;"></span></p>
+          <p><strong>Sanitized:</strong> <span id="sanitized" style="display: block; word-break: break-all;"></span></p>
+          <p><strong>XSS Threats Removed:</strong> <span id="threats">-</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function sendSanitizedRequest() {
+      const userInput = document.getElementById('userInput').value;
+      const email = document.getElementById('email').value;
+      const name = document.getElementById('name').value;
+      const endpoint = document.getElementById('endpoint').value;
+      const responseDiv = document.getElementById('response');
+      
+      try {
+        const body = {
+          content: userInput,
+          email,
+          name
+        };
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        
+        const data = await response.json();
+        
+        responseDiv.className = 'response-box ' + (response.status >= 400 ? 'error' : 'success');
+        responseDiv.textContent = JSON.stringify(data, null, 2);
+        
+        if (data.sanitized) {
+          document.getElementById('original').textContent = userInput;
+          document.getElementById('sanitized').textContent = data.sanitized;
+          document.getElementById('threats').textContent = data.threatsRemoved || 'None detected';
+          document.getElementById('sanitizationReport').style.display = 'block';
+        }
+      } catch (error) {
+        responseDiv.className = 'response-box error';
+        responseDiv.textContent = 'Error: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>

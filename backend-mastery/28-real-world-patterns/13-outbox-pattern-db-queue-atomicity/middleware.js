@@ -1,0 +1,1 @@
+const { recordSchema } = require('./schema');\n\nconst validateRecord = (req, res, next) => {\n  const { error } = recordSchema.validate(req.body);\n  if (error) return res.status(400).json({ error: error.details[0].message });\n  next();\n};\n\nmodule.exports = { validateRecord };"

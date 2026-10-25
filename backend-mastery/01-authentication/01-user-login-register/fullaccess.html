@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Mastery - Full Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            border-color: #667eea;
+        }
+
+        .content {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .module-item {
+            background: linear-gradient(135deg, #f5f5f5 0%, #fff 100%);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .module-item:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .module-number {
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .module-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .module-path {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .module-files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .file-tag {
+            background: #e3f2fd;
+            color: #667eea;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .file-explorer {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .file-item {
+            padding: 10px;
+            border-left: 3px solid #e0e0e0;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:hover {
+            border-left-color: #667eea;
+            background: #f5f5f5;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .file-content {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            background: #e0e0e0;
+            color: #333;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .view-btn:hover {
+            opacity: 0.9;
+        }
+
+        .module-detail {
+            display: none;
+        }
+
+        .module-detail.active {
+            display: block;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .detail-header h2 {
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+
+        .detail-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .readme-content {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .readme-content h1, .readme-content h2, .readme-content h3 {
+            margin: 15px 0 10px;
+            color: #333;
+        }
+
+        .readme-content code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .readme-content pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Backend Mastery Full Access</h1>
+        <p>Explore all modules, code, and files on any device</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('modules')">All Modules</button>
+        <button class="tab-btn" onclick="switchTab('explorer')">File Explorer</button>
+        <button class="tab-btn" onclick="switchTab('structure')">Project Structure</button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="content active">
+        <h2 style="margin-bottom: 20px; color: #667eea;">Welcome to Backend Mastery</h2>
+        <p style="margin-bottom: 15px; color: #666; line-height: 1.6;">
+            This is your complete backend development learning platform. Access all 30+ modules with complete code, 
+            theory, and interactive examples from your mobile device.
+        </p>
+        
+        <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <h3 style="color: #667eea; margin-bottom: 10px;">Quick Stats</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #667eea;">30+</div>
+                    <div style="font-size: 12px; color: #666;">Modules</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #764ba2;">300+</div>
+                    <div style="font-size: 12px; color: #666;">Topics</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #667eea;">100%</div>
+                    <div style="font-size: 12px; color: #666;">Complete</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <h3 style="color: #667eea; margin-bottom: 15px;">Available Modules</h3>
+            <div class="modules-grid" id="dashboardModules"></div>
+        </div>
+    </div>
+
+    <!-- All Modules Tab -->
+    <div id="modules" class="content">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search modules by name or path..." onkeyup="filterModules()">
+        <div id="modulesList"></div>
+    </div>
+
+    <!-- File Explorer Tab -->
+    <div id="explorer" class="content">
+        <div class="file-explorer">
+            <h3 style="margin-bottom: 15px; color: #667eea;">Browse Module Files</h3>
+            <select id="moduleSelect" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; margin-bottom: 15px;" onchange="updateFileList()">
+                <option value="">Select a module...</option>
+            </select>
+            <div id="filesList"></div>
+        </div>
+    </div>
+
+    <!-- Project Structure Tab -->
+    <div id="structure" class="content">
+        <h3 style="margin-bottom: 15px; color: #667eea;">Backend Mastery Structure</h3>
+        <pre id="structureTree" style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; font-size: 12px; overflow-x: auto;"></pre>
+    </div>
+
+    <script>
+        const API_URL = `http://${window.location.hostname}:4001/api`;
+        let allModules = [];
+
+        // Initialize
+        async function init() {
+            await loadModules();
+            loadProjectStructure();
+        }
+
+        async function loadModules() {
+            try {
+                const response = await fetch(`${API_URL}/modules`);
+                allModules = await response.json();
+                
+                // Display in dashboard
+                displayDashboardModules();
+                
+                // Display in modules tab
+                displayAllModules();
+                
+                // Populate file explorer
+                populateModuleSelect();
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        }
+
+        function displayDashboardModules() {
+            const container = document.getElementById('dashboardModules');
+            container.innerHTML = allModules.slice(0, 6).map(module => `
+                <div class="module-item" onclick="viewModuleDetail('${module.path}')">
+                    <div class="module-number">Module ${module.number}</div>
+                    <div class="module-name">${module.name}</div>
+                    <div class="module-path">${module.path}</div>
+                    <div class="module-files">
+                        ${module.files.slice(0, 3).map(f => `<span class="file-tag">${f}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayAllModules() {
+            const container = document.getElementById('modulesList');
+            container.innerHTML = allModules.map(module => `
+                <div class="module-item" onclick="viewModuleDetail('${module.path}')">
+                    <div class="module-number">Module ${module.number}</div>
+                    <div class="module-name">${module.name}</div>
+                    <div class="module-path">${module.path}</div>
+                    <div class="module-files">
+                        ${module.files.map(f => `<span class="file-tag">${f}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterModules() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('#modulesList .module-item');
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        async function viewModuleDetail(modulePath) {
+            try {
+                const response = await fetch(`${API_URL}/module/${modulePath}`);
+                const data = await response.json();
+                
+                alert(`Module: ${data.name}\nPath: ${data.path}\nFiles: ${data.files.join(', ')}`);
+            } catch (error) {
+                console.error('Error viewing module:', error);
+            }
+        }
+
+        function populateModuleSelect() {
+            const select = document.getElementById('moduleSelect');
+            select.innerHTML = '<option value="">Select a module...</option>' + 
+                allModules.map(m => `<option value="${m.path}">${m.number}: ${m.name}</option>`).join('');
+        }
+
+        async function updateFileList() {
+            const modulePath = document.getElementById('moduleSelect').value;
+            if (!modulePath) {
+                document.getElementById('filesList').innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/files/${modulePath}`);
+                const files = await response.json();
+                
+                document.getElementById('filesList').innerHTML = files.map(file => `
+                    <div class="file-item" onclick="viewFile('${modulePath}', '${file.name}')">
+                        <div>
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${file.size || 'N/A'}</div>
+                        </div>
+                        <button class="view-btn" onclick="event.stopPropagation(); viewFile('${modulePath}', '${file.name}')">View</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading files:', error);
+            }
+        }
+
+        async function viewFile(modulePath, fileName) {
+            try {
+                const response = await fetch(`${API_URL}/file/${modulePath}/${fileName}`);
+                const content = await response.text();
+                
+                const filesList = document.getElementById('filesList');
+                const expanded = filesList.querySelector('.file-content');
+                if (expanded) expanded.remove();
+                
+                const fileItems = filesList.querySelectorAll('.file-item');
+                fileItems.forEach(item => {
+                    if (item.querySelector('.file-name').textContent === fileName) {
+                        item.insertAdjacentHTML('afterend', `<div class="file-content">${escapeHtml(content)}</div>`);
+                    }
+                });
+            } catch (error) {
+                console.error('Error viewing file:', error);
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function loadProjectStructure() {
+            const structure = `
+backend-mastery/
+├── 01-authentication/
+│   ├── 01-user-login-register/
+│   ├── 02-jwt-access-refresh-tokens/
+│   ├── 03-oauth2-google-social-login/
+│   └── ... (32 sub-modules)
+├── 02-controllers-api/
+│   ├── 01-crud-controllers/
+│   ├── 02-restful-api-design/
+│   └── ... (15 sub-modules)
+├── 03-middleware/
+├── 04-models-database/
+├── 05-realtime-communication/
+├── 06-nodejs-internals/
+├── 07-security/
+├── 08-caching/
+├── 09-jobs-queues/
+├── 10-observability/
+├── 11-testing/
+├── 12-devops-cicd/
+├── 13-typescript-deep/
+├── 14-design-patterns/
+├── 15-algorithms-dsa/
+├── 16-network-http/
+├── 17-linux-os/
+├── 18-cryptography/
+├── 19-payments-fintech/
+├── 20-code-quality-git/
+├── 21-services-integrations/
+├── 22-compliance-privacy/
+├── 23-i18n/
+├── 24-architecture-patterns/
+├── 25-file-media-storage/
+├── 26-notifications-communication/
+├── 28-real-world-patterns/
+├── 29-ai-ml-backend/
+└── 30-saas-multitenancy/
+
+Total: 30+ Main Modules with 200+ Sub-modules
+            `;
+            document.getElementById('structureTree').textContent = structure;
+        }
+
+        function switchTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

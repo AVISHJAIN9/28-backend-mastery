@@ -1,0 +1,1 @@
+import React, { useState } from 'react'; export default function App() { const [data, setData] = useState(null); const test = async () => { try { const r = await fetch('/api'); setData(await r.json()); } catch(e) { setData({error: e.message}); } }; return <button onClick={test}>Test</button>; }

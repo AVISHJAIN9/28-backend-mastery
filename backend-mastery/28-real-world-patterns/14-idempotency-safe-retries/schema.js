@@ -1,0 +1,1 @@
+const Joi = require('joi');\n\nconst createSchema = Joi.object({\n  idempotency_key: Joi.string().required(),\n  title: Joi.string().required(),\n  content: Joi.string().required()\n});\n\nconst retrySchema = Joi.object({\n  idempotency_key: Joi.string().required()\n});\n\nmodule.exports = { createSchema, retrySchema };"

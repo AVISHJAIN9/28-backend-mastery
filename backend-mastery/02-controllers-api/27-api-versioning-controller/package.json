@@ -1,0 +1,17 @@
+{
+  "name": "27-api-versioning-controller",
+  "version": "1.0.0",
+  "description": "API versioning patterns for backward compatibility",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.0"
+  }
+}

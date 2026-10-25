@@ -1,0 +1,8 @@
+- [ ] Define operation format
+- [ ] Implement apply operation
+- [ ] Handle concurrent edits
+- [ ] Test conflict resolution
+- [ ] Add history tracking
+- [ ] Support undo/redo
+- [ ] Test with many users
+- [ ] Monitor performance

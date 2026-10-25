@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SSE Stream Demo</title>
+	<style>
+		body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+		.container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+		h1 { color: #3b82f6; }
+		button { padding: 10px 20px; background: #3b82f6; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 20px; }
+		.result { background: #e0f7fa; padding: 12px; border-radius: 4px; margin-top: 16px; word-break: break-all; min-height: 60px; }
+		.error { background: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-top: 16px; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>SSE Stream Demo</h1>
+		<button onclick="startStream()">Start Stream</button>
+		<div id="output" class="result"></div>
+		<div id="error"></div>
+	</div>
+	<script>
+		function startStream() {
+			document.getElementById('output').innerHTML = '';
+			document.getElementById('error').innerHTML = '';
+			const evtSource = new EventSource('/api/sse');
+			evtSource.onmessage = function(event) {
+				document.getElementById('output').innerHTML += `<div>${event.data}</div>`;
+			};
+			evtSource.onerror = function(err) {
+				document.getElementById('error').innerHTML = `<div class='error'>Stream error or closed.</div>`;
+				evtSource.close();
+			};
+		}
+	</script>
+</body>
+</html>
+

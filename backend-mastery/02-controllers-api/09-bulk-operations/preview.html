@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bulk Operations Demo</title>
+	<style>
+		body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+		.container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+		h1 { color: #3b82f6; }
+		input, button, textarea { padding: 10px; margin: 8px 0; width: 100%; border-radius: 4px; border: 1px solid #ddd; }
+		button { background: #3b82f6; color: #fff; border: none; cursor: pointer; }
+		.result { background: #e0f7fa; padding: 12px; border-radius: 4px; margin-top: 16px; word-break: break-all; }
+		.error { background: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-top: 16px; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Bulk Delete Demo</h1>
+		<form id="bulkForm">
+			<label>IDs to Delete (comma separated):</label>
+			<textarea id="ids" placeholder="id1,id2,id3" required></textarea>
+			<button type="submit">Bulk Delete</button>
+		</form>
+		<div id="output"></div>
+	</div>
+	<script>
+		document.getElementById('bulkForm').onsubmit = async function(e) {
+			e.preventDefault();
+			const ids = document.getElementById('ids').value.split(',').map(s => s.trim()).filter(Boolean);
+			const output = document.getElementById('output');
+			output.innerHTML = '';
+			try {
+				const res = await fetch('/api/bulk/delete', {
+					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ ids })
+				});
+				const data = await res.json();
+				if (res.ok && data.deleted) {
+					output.innerHTML = `<div class='result'><strong>Bulk Delete Success:</strong><br>Deleted: ${data.deleted.join(', ')}</div>`;
+				} else {
+					output.innerHTML = `<div class='error'>${data.error || 'Bulk delete failed.'}</div>`;
+				}
+			} catch (err) {
+				output.innerHTML = `<div class='error'>${err.message}</div>`;
+			}
+		};
+	</script>
+</body>
+</html>
+

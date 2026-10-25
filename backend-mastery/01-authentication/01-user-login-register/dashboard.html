@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Backend Mastery - Complete Module Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .module-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            width: fit-content;
+        }
+
+        .module-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .module-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .module-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .topic-tag {
+            background: #f0f0f0;
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .module-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .module-link:hover {
+            opacity: 0.9;
+        }
+
+        .auth-module {
+            grid-column: 1 / -1;
+        }
+
+        .auth-module .module-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .auth-module .module-title,
+        .auth-module .module-description {
+            color: white;
+        }
+
+        .auth-module .module-link {
+            background: white;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .search-box input {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            width: 300px;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            padding: 12px 30px;
+            background: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-box button:hover {
+            opacity: 0.9;
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .stat-item p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-module {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Backend Mastery</h1>
+        <p>Complete Node.js & Backend Development Learning Platform</p>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-item">
+                <h3>30+</h3>
+                <p>Modules</p>
+            </div>
+            <div class="stat-item">
+                <h3>300+</h3>
+                <p>Topics</p>
+            </div>
+            <div class="stat-item">
+                <h3>100%</h3>
+                <p>Complete</p>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search modules..." onkeyup="filterModules()">
+            <button onclick="resetSearch()">Reset</button>
+        </div>
+
+        <div class="modules-grid" id="modulesGrid">
+            <!-- Authentication -->
+            <div class="module auth-module" data-category="Security,Authentication">
+                <div class="module-card">
+                    <div class="module-number">Module 01</div>
+                    <div class="module-title">Authentication</div>
+                    <div class="module-description">Master user authentication including JWT, OAuth2, 2FA, sessions, and advanced security patterns for enterprise applications.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">JWT</span>
+                        <span class="topic-tag">OAuth2</span>
+                        <span class="topic-tag">2FA</span>
+                        <span class="topic-tag">Security</span>
+                    </div>
+                    <a href="/auth" class="module-link">Explore Module →</a>
+                </div>
+            </div>
+
+            <!-- Controllers API -->
+            <div class="module" data-category="API,Controllers,REST">
+                <div class="module-card">
+                    <div class="module-number">Module 02</div>
+                    <div class="module-title">Controllers & API Design</div>
+                    <div class="module-description">Learn REST API design patterns, controller architectures, routing, request handling, and best practices for scalable APIs.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">REST API</span>
+                        <span class="topic-tag">Controllers</span>
+                        <span class="topic-tag">Routing</span>
+                    </div>
+                    <a href="/api/modules/02" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <!-- Middleware -->
+            <div class="module" data-category="Middleware,Patterns">
+                <div class="module-card">
+                    <div class="module-number">Module 03</div>
+                    <div class="module-title">Middleware & Express</div>
+                    <div class="module-description">Understand middleware patterns, custom middleware creation, error handling, request/response manipulation, and pipeline design.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Middleware</span>
+                        <span class="topic-tag">Express</span>
+                        <span class="topic-tag">Patterns</span>
+                    </div>
+                    <a href="/api/modules/03" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <!-- Models & Database -->
+            <div class="module" data-category="Database,ORM,SQL">
+                <div class="module-card">
+                    <div class="module-number">Module 04</div>
+                    <div class="module-title">Models & Database</div>
+                    <div class="module-description">Master database design, ORMs, relationships, migrations, and data modeling with PostgreSQL, MongoDB, and more.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Database</span>
+                        <span class="topic-tag">ORM</span>
+                        <span class="topic-tag">SQL</span>
+                    </div>
+                    <a href="/api/modules/04" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <!-- Realtime Communication -->
+            <div class="module" data-category="WebSocket,Realtime,Socket.io">
+                <div class="module-card">
+                    <div class="module-number">Module 05</div>
+                    <div class="module-title">Realtime Communication</div>
+                    <div class="module-description">Build real-time features using WebSockets, Socket.io, Server-Sent Events, and bidirectional communication patterns.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">WebSocket</span>
+                        <span class="topic-tag">Socket.io</span>
+                        <span class="topic-tag">Realtime</span>
+                    </div>
+                    <a href="/api/modules/05" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <!-- Node.js Internals -->
+            <div class="module" data-category="Core,Performance,Internals">
+                <div class="module-card">
+                    <div class="module-number">Module 06</div>
+                    <div class="module-title">Node.js Internals</div>
+                    <div class="module-description">Understand Node.js event loop, libuv, memory management, performance optimization, and internal architecture.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Event Loop</span>
+                        <span class="topic-tag">Performance</span>
+                        <span class="topic-tag">Memory</span>
+                    </div>
+                    <a href="/api/modules/06" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div class="module" data-category="Security,Encryption,Safety">
+                <div class="module-card">
+                    <div class="module-number">Module 07</div>
+                    <div class="module-title">Security Best Practices</div>
+                    <div class="module-description">Learn OWASP vulnerabilities, secure coding, data protection, rate limiting, helmet, CORS, and attack prevention.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">OWASP</span>
+                        <span class="topic-tag">Encryption</span>
+                        <span class="topic-tag">Safety</span>
+                    </div>
+                    <a href="/api/modules/07" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <!-- More modules -->
+            <div class="module" data-category="Cache,Redis,Performance">
+                <div class="module-card">
+                    <div class="module-number">Module 08</div>
+                    <div class="module-title">Caching Strategies</div>
+                    <div class="module-description">Master Redis, in-memory caching, cache invalidation, TTL, distributed caching patterns, and performance optimization.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Redis</span>
+                        <span class="topic-tag">Cache</span>
+                        <span class="topic-tag">Performance</span>
+                    </div>
+                    <a href="/api/modules/08" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Jobs,Queues,Background">
+                <div class="module-card">
+                    <div class="module-number">Module 09</div>
+                    <div class="module-title">Jobs & Message Queues</div>
+                    <div class="module-description">Implement background jobs, Bull, RabbitMQ, job scheduling, retries, and async task processing patterns.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Bull</span>
+                        <span class="topic-tag">Queues</span>
+                        <span class="topic-tag">Jobs</span>
+                    </div>
+                    <a href="/api/modules/09" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Monitoring,Logging,DevOps">
+                <div class="module-card">
+                    <div class="module-number">Module 10</div>
+                    <div class="module-title">Observability</div>
+                    <div class="module-description">Monitor applications with logging, metrics, tracing, error tracking, performance monitoring, and health checks.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Monitoring</span>
+                        <span class="topic-tag">Logging</span>
+                        <span class="topic-tag">Tracing</span>
+                    </div>
+                    <a href="/api/modules/10" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Testing,QA,Jest,Mocha">
+                <div class="module-card">
+                    <div class="module-number">Module 11</div>
+                    <div class="module-title">Testing & QA</div>
+                    <div class="module-description">Master unit testing, integration testing, E2E testing, test coverage, mocking, and testing frameworks like Jest and Mocha.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Jest</span>
+                        <span class="topic-tag">Testing</span>
+                        <span class="topic-tag">QA</span>
+                    </div>
+                    <a href="/api/modules/11" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="DevOps,CI/CD,Docker,Kubernetes">
+                <div class="module-card">
+                    <div class="module-number">Module 12</div>
+                    <div class="module-title">DevOps & CI/CD</div>
+                    <div class="module-description">Learn Docker, Kubernetes, GitHub Actions, deployment pipelines, containerization, and infrastructure automation.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Docker</span>
+                        <span class="topic-tag">Kubernetes</span>
+                        <span class="topic-tag">CI/CD</span>
+                    </div>
+                    <a href="/api/modules/12" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="TypeScript,Types,Advanced">
+                <div class="module-card">
+                    <div class="module-number">Module 13</div>
+                    <div class="module-title">TypeScript Deep Dive</div>
+                    <div class="module-description">Master TypeScript advanced features, generics, decorators, advanced types, and type system mastery.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">TypeScript</span>
+                        <span class="topic-tag">Generics</span>
+                        <span class="topic-tag">Types</span>
+                    </div>
+                    <a href="/api/modules/13" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Patterns,Architecture,Design">
+                <div class="module-card">
+                    <div class="module-number">Module 14</div>
+                    <div class="module-title">Design Patterns</div>
+                    <div class="module-description">Learn 23 Gang of Four patterns, architectural patterns, SOLID principles, and practical implementation strategies.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Patterns</span>
+                        <span class="topic-tag">Architecture</span>
+                        <span class="topic-tag">SOLID</span>
+                    </div>
+                    <a href="/api/modules/14" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Algorithms,Data Structures,DSA">
+                <div class="module-card">
+                    <div class="module-number">Module 15</div>
+                    <div class="module-title">Algorithms & DSA</div>
+                    <div class="module-description">Master algorithms, data structures, sorting, searching, complexity analysis, and competitive programming fundamentals.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Algorithms</span>
+                        <span class="topic-tag">DSA</span>
+                        <span class="topic-tag">Complexity</span>
+                    </div>
+                    <a href="/api/modules/15" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Network,HTTP,TCP,DNS">
+                <div class="module-card">
+                    <div class="module-number">Module 16</div>
+                    <div class="module-title">Network & HTTP</div>
+                    <div class="module-description">Understand networking fundamentals, HTTP/HTTPS, TCP/IP, DNS, proxies, load balancing, and network optimization.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">HTTP</span>
+                        <span class="topic-tag">Network</span>
+                        <span class="topic-tag">TCP</span>
+                    </div>
+                    <a href="/api/modules/16" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Linux,OS,CLI,Commands">
+                <div class="module-card">
+                    <div class="module-number">Module 17</div>
+                    <div class="module-title">Linux & OS Fundamentals</div>
+                    <div class="module-description">Master Linux/Unix, command line, shell scripting, file systems, processes, permissions, and system administration.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Linux</span>
+                        <span class="topic-tag">Shell</span>
+                        <span class="topic-tag">CLI</span>
+                    </div>
+                    <a href="/api/modules/17" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Encryption,Cryptography,Hashing">
+                <div class="module-card">
+                    <div class="module-number">Module 18</div>
+                    <div class="module-title">Cryptography</div>
+                    <div class="module-description">Learn encryption, hashing, digital signatures, SSL/TLS, key management, and cryptographic algorithms for security.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Crypto</span>
+                        <span class="topic-tag">Hashing</span>
+                        <span class="topic-tag">SSL/TLS</span>
+                    </div>
+                    <a href="/api/modules/18" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Payments,Fintech,Stripe">
+                <div class="module-card">
+                    <div class="module-number">Module 19</div>
+                    <div class="module-title">Payments & Fintech</div>
+                    <div class="module-description">Integrate payment systems, Stripe, PayPal, e-commerce, billing, subscription management, and financial transactions.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Stripe</span>
+                        <span class="topic-tag">Payments</span>
+                        <span class="topic-tag">Fintech</span>
+                    </div>
+                    <a href="/api/modules/19" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Code Quality,Git,Version Control">
+                <div class="module-card">
+                    <div class="module-number">Module 20</div>
+                    <div class="module-title">Code Quality & Git</div>
+                    <div class="module-description">Master Git, code review, linting, formatting, semantic versioning, changelog management, and code quality tools.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Git</span>
+                        <span class="topic-tag">Quality</span>
+                        <span class="topic-tag">Testing</span>
+                    </div>
+                    <a href="/api/modules/20" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Services,Integrations,APIs">
+                <div class="module-card">
+                    <div class="module-number">Module 21</div>
+                    <div class="module-title">Services & Integrations</div>
+                    <div class="module-description">Integrate with AWS, third-party APIs, webhooks, microservices, event-driven architecture, and service mesh patterns.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">AWS</span>
+                        <span class="topic-tag">Integrations</span>
+                        <span class="topic-tag">APIs</span>
+                    </div>
+                    <a href="/api/modules/21" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Compliance,Privacy,GDPR,Legal">
+                <div class="module-card">
+                    <div class="module-number">Module 22</div>
+                    <div class="module-title">Compliance & Privacy</div>
+                    <div class="module-description">Understand GDPR, data privacy, legal compliance, security certifications, audit logs, and regulatory requirements.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">GDPR</span>
+                        <span class="topic-tag">Privacy</span>
+                        <span class="topic-tag">Legal</span>
+                    </div>
+                    <a href="/api/modules/22" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="i18n,Localization,Translation">
+                <div class="module-card">
+                    <div class="module-number">Module 23</div>
+                    <div class="module-title">Internationalization (i18n)</div>
+                    <div class="module-description">Implement multi-language support, localization, timezone handling, translations, and global application strategies.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">i18n</span>
+                        <span class="topic-tag">Localization</span>
+                        <span class="topic-tag">Translation</span>
+                    </div>
+                    <a href="/api/modules/23" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Architecture,Scalability,Design">
+                <div class="module-card">
+                    <div class="module-number">Module 24</div>
+                    <div class="module-title">Architecture Patterns</div>
+                    <div class="module-description">Master microservices, event sourcing, domain-driven design, CQRS, saga patterns, and scalable architecture design.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Microservices</span>
+                        <span class="topic-tag">Architecture</span>
+                        <span class="topic-tag">Scalability</span>
+                    </div>
+                    <a href="/api/modules/24" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Files,Storage,S3,Media">
+                <div class="module-card">
+                    <div class="module-number">Module 25</div>
+                    <div class="module-title">File & Media Storage</div>
+                    <div class="module-description">Handle file uploads, storage systems, cloud storage, AWS S3, image processing, CDN integration, and media management.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">S3</span>
+                        <span class="topic-tag">Storage</span>
+                        <span class="topic-tag">Media</span>
+                    </div>
+                    <a href="/api/modules/25" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Notifications,Email,SMS,Push">
+                <div class="module-card">
+                    <div class="module-number">Module 26</div>
+                    <div class="module-title">Notifications & Communication</div>
+                    <div class="module-description">Send emails, SMS, push notifications, in-app messaging, webhook notifications, and multi-channel communication.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Email</span>
+                        <span class="topic-tag">Notifications</span>
+                        <span class="topic-tag">SMS</span>
+                    </div>
+                    <a href="/api/modules/26" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="Patterns,Real-world,Production">
+                <div class="module-card">
+                    <div class="module-number">Module 28</div>
+                    <div class="module-title">Real-World Patterns</div>
+                    <div class="module-description">Learn production-ready patterns, case studies, common pitfalls, debugging techniques, and real-world application strategies.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">Production</span>
+                        <span class="topic-tag">Patterns</span>
+                        <span class="topic-tag">Real-world</span>
+                    </div>
+                    <a href="/api/modules/28" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="AI,ML,Machine Learning">
+                <div class="module-card">
+                    <div class="module-number">Module 29</div>
+                    <div class="module-title">AI & Machine Learning</div>
+                    <div class="module-description">Integrate AI/ML models, TensorFlow, OpenAI APIs, NLP, recommendations, and machine learning in backends.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">AI</span>
+                        <span class="topic-tag">ML</span>
+                        <span class="topic-tag">OpenAI</span>
+                    </div>
+                    <a href="/api/modules/29" class="module-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="module" data-category="SaaS,Multi-tenant,Scalability">
+                <div class="module-card">
+                    <div class="module-number">Module 30</div>
+                    <div class="module-title">SaaS & Multi-Tenancy</div>
+                    <div class="module-description">Build multi-tenant SaaS applications with tenant isolation, billing, feature flags, analytics, and scaling strategies.</div>
+                    <div class="module-topics">
+                        <span class="topic-tag">SaaS</span>
+                        <span class="topic-tag">Multi-tenant</span>
+                        <span class="topic-tag">Billing</span>
+                    </div>
+                    <a href="/api/modules/30" class="module-link">Learn More →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Backend Mastery © 2026 | Complete Backend Development Learning Platform</p>
+    </div>
+
+    <script>
+        function filterModules() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const modules = document.querySelectorAll('.module');
+
+            modules.forEach(module => {
+                const title = module.querySelector('.module-title').textContent.toLowerCase();
+                const description = module.querySelector('.module-description').textContent.toLowerCase();
+                const topics = module.querySelector('.module-topics').textContent.toLowerCase();
+
+                if (title.includes(searchInput) || description.includes(searchInput) || topics.includes(searchInput)) {
+                    module.style.display = '';
+                } else {
+                    module.style.display = 'none';
+                }
+            });
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            filterModules();
+        }
+    </script>
+</body>
+</html>

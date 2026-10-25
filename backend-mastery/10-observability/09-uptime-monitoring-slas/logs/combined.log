@@ -1,0 +1,6 @@
+{"level":"info","message":{"event":"application_started","module":"09-uptime-monitoring-slas","port":4009,"timestamp":"2026-03-31T03:52:10.540Z"},"timestamp":"2026-03-31 09:22:10"}
+{"level":"info","message":{"duration":"1ms","event":"http_request","method":"GET","path":"/","statusCode":200,"timestamp":"2026-03-31T03:52:13.207Z"},"timestamp":"2026-03-31 09:22:13"}
+{"level":"warn","message":"SIGTERM received, shutting down gracefully","timestamp":"2026-03-31 09:22:13"}
+{"level":"info","message":{"event":"application_started","module":"09-uptime-monitoring-slas","port":4009,"timestamp":"2026-03-31T03:52:21.471Z"},"timestamp":"2026-03-31 09:22:21"}
+{"level":"info","message":{"duration":"0ms","event":"http_request","method":"GET","path":"/","statusCode":200,"timestamp":"2026-03-31T03:52:27.053Z"},"timestamp":"2026-03-31 09:22:27"}
+{"level":"warn","message":"SIGTERM received, shutting down gracefully","timestamp":"2026-03-31 09:22:30"}

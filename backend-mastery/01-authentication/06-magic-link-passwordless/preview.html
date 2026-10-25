@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 06: Magic Link Passwordless - Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .flow-diagram {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .step h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .step p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .code {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .button-area {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #4a5fc1;
+            color: white;
+        }
+        
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #0288d1;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .info-box strong {
+            color: #0288d1;
+        }
+        
+        .security-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .security-box strong {
+            color: #ff9800;
+        }
+        
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .warning-box strong {
+            color: #f44336;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-item {
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .comparison-item h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .traditional {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        
+        .modern {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #666;
+        }
+        
+        .list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card h4 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #f5f5f5;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        @media (max-width: 600px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .flow-diagram {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✉️ Magic Link Passwordless</h1>
+            <p>Secure authentication without passwords</p>
+        </div>
+        
+        <div class="content">
+            <!-- What is Magic Link -->
+            <div class="section">
+                <h2>What is Magic Link?</h2>
+                <p>Magic link authentication is a passwordless method where users receive a unique token via email. Clicking the link automatically logs them in without entering a password.</p>
+                
+                <div class="comparison">
+                    <div class="comparison-item traditional">
+                        <h4>🔑 Traditional Login</h4>
+                        <ul class="list">
+                            <li>User creates password</li>
+                            <li>User remembers password</li>
+                            <li>User types password</li>
+                            <li>Server checks password hash</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-item modern">
+                        <h4>✉️ Magic Link</h4>
+                        <ul class="list">
+                            <li>No password to create</li>
+                            <li>Nothing to remember</li>
+                            <li>Click link in email</li>
+                            <li>Automatically logged in</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>Key Benefit:</strong> User proves identity by accessing their email account. No password needed.
+                </div>
+            </div>
+            
+            <!-- How it Works -->
+            <div class="section">
+                <h2>How Magic Links Work</h2>
+                
+                <div class="flow-diagram">
+Step 1: User enters email address
+        ↓
+Step 2: Server generates random token (32 bytes)
+        Example: "a3f2b1e9d7c4f8a2b5e1d9c3..."
+        ↓
+Step 3: Store token with expiration (15 minutes)
+        ↓
+Step 4: Send email with magic link
+        https://app.example.com/auth/verify/TOKEN
+        ↓
+Step 5: User clicks link in email
+        ↓
+Step 6: Frontend extracts token from URL
+        ↓
+Step 7: Frontend sends token to backend
+        ↓
+Step 8: Server validates token:
+        - Exists in database?
+        - Not expired?
+        - Not already used?
+        ↓
+Step 9: Mark token as used (one-time only)
+        ↓
+Step 10: Generate JWT access token
+         ↓
+Step 11: Return JWT to user
+         ↓
+Step 12: User logged in, can access app
+                </div>
+            </div>
+            
+            <!-- Token Security -->
+            <div class="section">
+                <h2>Token Security</h2>
+                
+                <div class="step">
+                    <h3>1. Token Length & Randomness</h3>
+                    <p>32 bytes (256 bits) generated with crypto.randomBytes()</p>
+                    <div class="code">
+const token = crypto.randomBytes(32).toString('hex')
+// Result: 64-character hex string
+// Unguessable: 2^256 = 1.1 × 10^77 combinations
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>2. Token Expiration</h3>
+                    <p>15-minute window balances security (no old tokens) with UX (user has time to click)</p>
+                    <div class="code">
+expiresAt = new Date(Date.now() + 15 * 60 * 1000)
+if (new Date() > expiresAt) → 401 Unauthorized
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>3. One-Time Use</h3>
+                    <p>Token can only be used once. Prevents replay attacks.</p>
+                    <div class="code">
+if (token.used) → 401 Unauthorized
+token.used = true  // Mark immediately
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>4. HTTPS Transmission</h3>
+                    <p>Token must be transmitted over HTTPS to prevent interception</p>
+                    <div class="code">
+✓ GOOD: https://app.com/auth/verify/TOKEN
+✗ BAD:  http://app.com/auth/verify/TOKEN
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Benefits -->
+            <div class="section">
+                <h2>Benefits</h2>
+                
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔓</div>
+                        <h4>No Passwords</h4>
+                        <p>Users don't need to create or remember passwords</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h4>Fast Signup</h4>
+                        <p>One-click signup (just email), no password complexity</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h4>Better UX</h4>
+                        <p>Click link = instant login. No form filling.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h4>No Reuse</h4>
+                        <p>Tokens can't be reused. One token = one login.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h4>Cross-Device</h4>
+                        <p>Click link on phone? Opens on desktop. Works everywhere.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📧</div>
+                        <h4>Email Recovery</h4>
+                        <p>Forgot to login? Just request new link. Can't lose access.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Features -->
+            <div class="section">
+                <h2>Security Features</h2>
+                
+                <div class="security-box">
+                    <strong>🔒 Token Randomness:</strong> 256-bit cryptographically random. Impossible to guess (1.1 × 10^77 possibilities).
+                </div>
+                
+                <div class="security-box">
+                    <strong>⏱️ Time-Limited:</strong> 15-minute expiration. Old emails can't be used to hijack account.
+                </div>
+                
+                <div class="security-box">
+                    <strong>🔐 One-Time Use:</strong> Token immediately marked used. Prevents replay attacks and account takeover.
+                </div>
+                
+                <div class="security-box">
+                    <strong>📧 Email Verification:</strong> User proves identity by accessing email account. Strong identity proof.
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Note:</strong> Magic link ≠ 2FA. If email is compromised, account is at risk. Add 2FA for extra security.
+                </div>
+            </div>
+            
+            <!-- Attack Prevention -->
+            <div class="section">
+                <h2>Attack Prevention</h2>
+                
+                <div class="step">
+                    <h3>Attack 1: Brute Force Tokens</h3>
+                    <p>Attacker tries to guess random token</p>
+                    <div class="code">
+Attacker tries: 1 million guesses per second
+Time to break: 3.6 × 10^63 years
+Result: ✓ IMPOSSIBLE
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Attack 2: Token Reuse</h3>
+                    <p>Attacker intercepts token from email, tries to use it</p>
+                    <div class="code">
+First use: Token works, user logged in
+Second use: Token marked used=true → 401 Unauthorized
+Result: ✓ PREVENTED
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Attack 3: Expiration Bypass</h3>
+                    <p>Attacker waits 20 minutes, then tries old token</p>
+                    <div class="code">
+Token created: 10:00:00
+Token expires: 10:15:00
+Attacker tries: 10:20:00 (5 minutes late)
+Result: ✓ REJECTED (expired)
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Attack 4: Email Interception</h3>
+                    <p>Attacker gains access to user's email, clicks link</p>
+                    <div class="code">
+Required: Email account compromise
+Gain: Access to user's account
+Prevention: Add 2FA, email notifications, IP tracking
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comparison vs Alternatives -->
+            <div class="section">
+                <h2>Magic Link vs Alternatives</h2>
+                
+                <table>
+                    <tr>
+                        <th>Method</th>
+                        <th>Security</th>
+                        <th>User Experience</th>
+                        <th>Recovery</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Magic Link</strong></td>
+                        <td>⭐⭐⭐⭐ Very Good</td>
+                        <td>Excellent</td>
+                        <td>Email access</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Password</strong></td>
+                        <td>⭐⭐ Weak</td>
+                        <td>OK (remembering burden)</td>
+                        <td>Password reset email</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SMS OTP</strong></td>
+                        <td>⭐⭐⭐ Medium</td>
+                        <td>Good</td>
+                        <td>SMS recovery code</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Authenticator App</strong></td>
+                        <td>⭐⭐⭐⭐⭐ Excellent</td>
+                        <td>OK</td>
+                        <td>Backup codes required</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WebAuthn/Passkey</strong></td>
+                        <td>⭐⭐⭐⭐⭐ Excellent</td>
+                        <td>Excellent</td>
+                        <td>Biometric/PIN</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Real-World Examples -->
+            <div class="section">
+                <h2>Real-World Usage</h2>
+                
+                <div class="step">
+                    <h3>Slack</h3>
+                    <p>Uses magic links for email confirmation and passwordless login. Can optionally set password.</p>
+                </div>
+                
+                <div class="step">
+                    <h3>Notion</h3>
+                    <p>Optional magic link login. Email address is username, magic link is password replacement.</p>
+                </div>
+                
+                <div class="step">
+                    <h3>Medium</h3>
+                    <p>Email-only authentication. No passwords at all. Magic link for every login.</p>
+                </div>
+                
+                <div class="step">
+                    <h3>GitHub (Mobile App)</h3>
+                    <p>Magic link to verify mobile device registration. Alternative to SSH keys.</p>
+                </div>
+            </div>
+            
+            <!-- Testing -->
+            <div class="section">
+                <h2>How to Test</h2>
+                
+                <div class="step">
+                    <h3>Step 1: Register Email</h3>
+                    <p>Enter your email address to create account</p>
+                    <div class="button-area">
+                        <button class="btn btn-primary">📧 Register with Email</button>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 2: Request Magic Link</h3>
+                    <p>Click to send magic link to your email</p>
+                    <div class="button-area">
+                        <button class="btn btn-primary">✉️ Send Magic Link</button>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 3: Check Email</h3>
+                    <p>Open your email and click the magic link (valid for 15 minutes)</p>
+                    <div class="info-box">
+                        <strong>In development:</strong> Check console or test email service for link
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 4: Click Link</h3>
+                    <p>Clicking link in email automatically logs you in</p>
+                    <div class="button-area">
+                        <button class="btn btn-secondary">✓ Verify Token</button>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>Step 5: Logged In</h3>
+                    <p>You're now authenticated with JWT token</p>
+                    <div class="info-box">
+                        <strong>Token:</strong> JWT stored in localStorage, sent with each request
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Best Practices -->
+            <div class="section">
+                <h2>Security Best Practices</h2>
+                
+                <div class="security-box">
+                    <strong>✓ Always HTTPS:</strong> Magic links must be transmitted over HTTPS. Tokens in URLs need encryption.
+                </div>
+                
+                <div class="security-box">
+                    <strong>✓ 15-Minute Expiry:</strong> Balances security (no old tokens) with UX (user has time to click).
+                </div>
+                
+                <div class="security-box">
+                    <strong>✓ One-Time Use:</strong> Token marked used immediately. Mark before responding to prevent race conditions.
+                </div>
+                
+                <div class="security-box">
+                    <strong>✓ Rate Limiting:</strong> Max 10 send-magic-link per email per hour. Prevents spam and abuse.
+                </div>
+                
+                <div class="security-box">
+                    <strong>✓ Token Cleanup:</strong> Delete expired tokens periodically. Reduces database size.
+                </div>
+                
+                <div class="security-box">
+                    <strong>✓ Email Notifications:</strong> Notify user of login attempt. If unexpected, user can change password.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
