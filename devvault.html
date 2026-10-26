@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevVault — Backend Mastery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0d;
+    --bg2: #111318;
+    --bg3: #181c22;
+    --bg4: #1e232c;
+    --border: #252b35;
+    --border2: #2e3644;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-ui: 'Syne', sans-serif;
+    --sidebar: 280px;
+    --topbar: 56px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    height: var(--topbar);
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+    flex-shrink: 0;
+    z-index: 100;
+  }
+
+  .topbar-logo {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .topbar-logo .vault-icon {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .search-wrap {
+    flex: 1;
+    max-width: 480px;
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px 7px 36px;
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 13px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .status-badge {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background .3s;
+  }
+  .status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .status-dot.offline { background: var(--red); }
+
+  .global-stats {
+    display: flex;
+    gap: 20px;
+    padding: 0 12px;
+    border-left: 1px solid var(--border);
+    margin-left: 8px;
+  }
+
+  .stat-item {
+    text-align: center;
+    font-family: var(--font-mono);
+  }
+  .stat-num {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .sidebar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 3px; }
+  .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .cat-section { margin-bottom: 2px; }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    padding: 6px 14px;
+    cursor: pointer;
+    gap: 8px;
+    border-radius: 0;
+    transition: background .15s;
+    user-select: none;
+  }
+  .cat-header:hover { background: var(--bg3); }
+
+  .cat-ring {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .cat-ring svg {
+    width: 28px;
+    height: 28px;
+    transform: rotate(-90deg);
+  }
+
+  .cat-ring .ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
+  .cat-ring .ring-fill { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset .5s; }
+
+  .cat-num {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted2);
+    transform: rotate(0deg);
+  }
+
+  .cat-info { flex: 1; min-width: 0; }
+
+  .cat-name {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+
+  .cat-count {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    display: block;
+  }
+
+  .cat-chevron {
+    color: var(--muted);
+    font-size: 11px;
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .cat-header.open .cat-chevron { transform: rotate(90deg); }
+
+  .topic-list { display: none; }
+  .topic-list.open { display: block; }
+
+  .topic-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 14px 5px 50px;
+    cursor: pointer;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted2);
+    transition: all .15s;
+    border-left: 2px solid transparent;
+    position: relative;
+  }
+  .topic-item:hover { background: var(--bg3); color: var(--text); }
+  .topic-item.active {
+    background: var(--bg4);
+    color: var(--text);
+    border-left-color: var(--accent);
+  }
+
+  .topic-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border2);
+    flex-shrink: 0;
+    transition: background .2s;
+  }
+  .topic-item.written .topic-dot { background: var(--green); }
+  .topic-item.partial .topic-dot { background: var(--amber); }
+
+  .topic-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topic-pct {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ── CONTENT AREA ── */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--muted);
+    padding: 40px;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    opacity: 0.3;
+  }
+
+  .empty-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--muted2);
+  }
+
+  .empty-sub {
+    font-size: 13px;
+    text-align: center;
+    max-width: 360px;
+    line-height: 1.6;
+  }
+
+  /* TOPIC HEADER */
+  .topic-header {
+    padding: 16px 24px 0;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: none;
+  }
+  .topic-header.visible { display: block; }
+
+  .topic-breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .breadcrumb-sep { color: var(--border2); }
+
+  .topic-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  /* PROGRESS BAR */
+  .topic-progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+  .topic-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width .5s ease;
+  }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    overflow-x: auto;
+    display: none;
+  }
+  .tab-bar.visible { display: flex; }
+  .tab-bar::-webkit-scrollbar { height: 0; }
+
+  .tab-btn {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: var(--font-ui);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-badge {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    display: none;
+  }
+  .tab-badge.show { display: block; }
+
+  /* PANELS */
+  .panels {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    display: none;
+  }
+  .panels.visible { display: block; }
+
+  .panel {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .panel::-webkit-scrollbar { width: 4px; }
+  .panel::-webkit-scrollbar-track { background: transparent; }
+  .panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .panel.active { display: block; }
+
+  /* CODE PANEL */
+  .file-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .file-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: all .15s;
+  }
+  .file-tab:hover { border-color: var(--border2); color: var(--text); }
+  .file-tab.active { background: var(--bg4); border-color: var(--accent); color: var(--accent); }
+  .file-tab.written { }
+  .file-tab .dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-right: 5px;
+    background: var(--muted);
+    vertical-align: middle;
+  }
+  .file-tab.written .dot { background: var(--green); }
+
+  .code-view {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .code-view-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+
+  .code-view-filename {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted2);
+    flex: 1;
+  }
+
+  .code-view-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+  }
+
+  .code-view-status.empty {
+    background: rgba(100,116,139,.15);
+    color: var(--muted);
+  }
+
+  .code-view-status.written {
+    background: rgba(34,197,94,.12);
+    color: var(--green);
+  }
+
+  .code-pre {
+    padding: 20px;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    min-height: 200px;
+    color: var(--text);
+    white-space: pre;
+  }
+
+  .code-pre.empty-file {
+    color: var(--muted);
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    font-size: 12px;
+  }
+
+  /* syntax highlights */
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .key { color: #89ddff; }
+
+  /* EXPLANATION / SETUP / THEORY PANELS */
+  .md-content {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--muted2);
+    font-family: var(--font-ui);
+    min-height: 200px;
+    white-space: pre-wrap;
+  }
+
+  .md-content.empty-md {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 13px;
+  }
+
+  .md-content h1 { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .md-content h2 { font-size: 15px; font-weight: 700; color: var(--text); margin: 16px 0 6px; }
+  .md-content h3 { font-size: 13px; font-weight: 700; color: var(--muted2); margin: 12px 0 4px; }
+  .md-content code {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--cyan);
+  }
+  .md-content pre {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin: 10px 0;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text);
+    white-space: pre;
+  }
+
+  /* CHECKLIST PANEL */
+  .checklist-wrap {
+    max-width: 600px;
+  }
+
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+  }
+  .checklist-item:hover { border-color: var(--border2); }
+  .checklist-item.checked { background: rgba(34,197,94,.06); border-color: rgba(34,197,94,.3); }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border2);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all .2s;
+    font-size: 11px;
+  }
+  .checklist-item.checked .check-box {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .check-label {
+    font-size: 13px;
+    color: var(--muted2);
+    transition: color .15s;
+  }
+  .checklist-item.checked .check-label {
+    color: var(--text);
+    text-decoration: line-through;
+    text-decoration-color: var(--green);
+  }
+
+  .checklist-progress {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .cl-prog-num {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .cl-prog-label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .cl-prog-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .cl-prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--cyan));
+    border-radius: 3px;
+    transition: width .4s ease;
+  }
+
+  /* ENV PANEL */
+  .env-view {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .env-header {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .env-pre {
+    padding: 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre;
+    min-height: 150px;
+  }
+
+  .env-key { color: #89ddff; }
+  .env-eq { color: var(--muted); }
+  .env-val { color: #c3e88d; }
+  .env-comment { color: #546e7a; }
+
+  /* CONNECTION ALERT */
+  .conn-alert {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg3);
+    border: 1px solid var(--red);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--red);
+    display: none;
+    z-index: 1000;
+    font-family: var(--font-mono);
+    max-width: 320px;
+  }
+  .conn-alert.show { display: block; }
+
+  /* REFRESH INDICATOR */
+  .refresh-flash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity .3s;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .refresh-flash.show { opacity: 1; }
+
+  /* SEARCH RESULTS */
+  .search-results {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    z-index: 200;
+    max-height: 320px;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  }
+  .search-results.open { display: block; }
+  .search-result-item {
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background .1s;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item:hover { background: var(--bg4); }
+  .sr-cat { font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 2px; }
+  .sr-topic { color: var(--text); font-weight: 600; }
+  .sr-highlight { color: var(--accent); }
+
+  /* QUICK KEY */
+  .kbd {
+    display: inline-block;
+    padding: 2px 5px;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted2);
+  }
+
+  /* scrollbar global */
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+  /* SIMPLE SYNTAX HIGHLIGHT */
+  .token-keyword { color: #c792ea; }
+  .token-string { color: #c3e88d; }
+  .token-comment { color: #546e7a; font-style: italic; }
+  .token-function { color: #82aaff; }
+  .token-number { color: #f78c6c; }
+  .token-operator { color: #89ddff; }
+</style>
+</head>
+<body>
+
+<!-- Refresh flash -->
+<div class="refresh-flash" id="rfFlash"></div>
+
+<!-- Connection alert -->
+<div class="conn-alert" id="connAlert">
+  ⚠ Can't reach watcher — run <strong>node watcher.js</strong> in your terminal
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="vault-icon">⚡</div>
+    DevVault
+  </div>
+
+  <div class="search-wrap" id="searchWrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" placeholder="Search any topic… (Ctrl+K)" autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <div class="global-stats" id="globalStats">
+    <div class="stat-item">
+      <span class="stat-num" id="statTopics">—</span>
+      <span class="stat-label">topics</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="statWritten">—</span>
+      <span class="stat-label">files written</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="statPct">—</span>
+      <span class="stat-label">progress</span>
+    </div>
+  </div>
+
+  <div class="status-badge">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">connecting…</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-scroll" id="sidebarScroll"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content">
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📂</div>
+      <div class="empty-title">Pick a topic to start</div>
+      <div class="empty-sub">
+        Select any topic from the sidebar. Write code in VS Code → it auto-appears here.<br><br>
+        <span class="kbd">Ctrl+K</span> to search &nbsp;·&nbsp; <span class="kbd">→</span> to navigate
+      </div>
+    </div>
+
+    <!-- Topic view -->
+    <div class="topic-header" id="topicHeader">
+      <div class="topic-breadcrumb" id="topicBreadcrumb"></div>
+      <div class="topic-title" id="topicTitle"></div>
+      <div class="topic-progress-bar">
+        <div class="topic-progress-fill" id="topicProgressFill"></div>
+      </div>
+    </div>
+
+    <div class="tab-bar" id="tabBar">
+      <button class="tab-btn active" data-tab="code" onclick="switchTab('code')">
+        <span class="tab-badge" id="badge-code"></span> 💻 Code
+      </button>
+      <button class="tab-btn" data-tab="explanation" onclick="switchTab('explanation')">
+        <span class="tab-badge" id="badge-explanation"></span> 📝 Explanation
+      </button>
+      <button class="tab-btn" data-tab="setup" onclick="switchTab('setup')">
+        <span class="tab-badge" id="badge-setup"></span> ⚙️ Setup
+      </button>
+      <button class="tab-btn" data-tab="env" onclick="switchTab('env')">
+        <span class="tab-badge" id="badge-env"></span> 🔑 .env
+      </button>
+      <button class="tab-btn" data-tab="theory" onclick="switchTab('theory')">
+        <span class="tab-badge" id="badge-theory"></span> 📚 Theory
+      </button>
+      <button class="tab-btn" data-tab="checklist" onclick="switchTab('checklist')">
+        ✅ Checklist
+      </button>
+      <button class="tab-btn" data-tab="preview" onclick="switchTab('preview')">
+        <span class="tab-badge" id="badge-preview"></span> 🖥 Preview
+      </button>
+    </div>
+
+    <div class="panels" id="panels">
+      <!-- CODE -->
+      <div class="panel active" id="panel-code">
+        <div class="file-tabs" id="fileTabs"></div>
+        <div class="code-view" id="codeView">
+          <div class="code-view-header">
+            <span class="code-view-filename" id="codeFilename">—</span>
+            <span class="code-view-status empty" id="codeStatus">empty</span>
+          </div>
+          <pre class="code-pre" id="codePre"></pre>
+        </div>
+      </div>
+
+      <!-- EXPLANATION -->
+      <div class="panel" id="panel-explanation">
+        <div class="md-content" id="mdExplanation"></div>
+      </div>
+
+      <!-- SETUP -->
+      <div class="panel" id="panel-setup">
+        <div class="md-content" id="mdSetup"></div>
+      </div>
+
+      <!-- ENV -->
+      <div class="panel" id="panel-env">
+        <div class="env-view">
+          <div class="env-header">.env.example</div>
+          <div class="env-pre" id="envPre"></div>
+        </div>
+      </div>
+
+      <!-- THEORY -->
+      <div class="panel" id="panel-theory">
+        <div class="md-content" id="mdTheory"></div>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="panel" id="panel-preview" style="padding:0;">
+        <div id="previewWrap" style="height:100%;display:flex;flex-direction:column;">
+          <div style="padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;gap:12px;flex-shrink:0;">
+            <span style="font-size:12px;color:var(--muted);">Preview loads your <code style="background:var(--bg4);padding:2px 6px;border-radius:4px;font-size:11px;color:var(--cyan)">preview.html</code> in an iframe — write your backend, open preview, test live</span>
+            <button onclick="reloadPreview()" style="margin-left:auto;padding:5px 12px;background:var(--accent);color:white;border:none;border-radius:6px;font-family:var(--font-ui);font-size:11px;cursor:pointer;">↺ Reload</button>
+          </div>
+          <iframe id="previewFrame" style="flex:1;border:none;background:#0f1117;width:100%;"></iframe>
+        </div>
+      </div>
+
+      <!-- CHECKLIST -->
+      <div class="panel" id="panel-checklist">
+        <div class="checklist-progress" id="clProgress">
+          <div>
+            <div class="cl-prog-num" id="clNum">0/8</div>
+            <div class="cl-prog-label">tasks complete</div>
+          </div>
+          <div class="cl-prog-bar">
+            <div class="cl-prog-fill" id="clFill"></div>
+          </div>
+        </div>
+        <div class="checklist-wrap" id="checklistWrap"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let catalog = [];
+let activeTopic = null;
+let activeFile = 'schema.js';
+let activeTab = 'code';
+let isConnected = false;
+let pollInterval = null;
+
+const WATCHER_URL = 'http://localhost:4444';
+const POLL_MS = 3000;
+
+const CHECKLIST_ITEMS = [
+  'Understood the concept deeply',
+  'Written the schema / model',
+  'Written the controller logic',
+  'Written the routes',
+  'Written the middleware',
+  'Tested manually (Postman/Insomnia)',
+  'Written automated tests',
+  'Reviewed edge cases & errors',
+];
+
+const CODE_FILES = ['schema.js', 'controller.js', 'routes.js', 'middleware.js'];
+
+// ═══════════════════════════════════════════════════════
+// POLLING
+// ═══════════════════════════════════════════════════════
+async function fetchCatalog() {
+  try {
+    const r = await fetch(`${WATCHER_URL}/catalog`, { signal: AbortSignal.timeout(4000) });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    setConnected(true);
+    if (JSON.stringify(data) !== JSON.stringify(catalog)) {
+      catalog = data;
+      renderSidebar();
+      if (activeTopic) refreshActiveTopic();
+      updateGlobalStats();
+      flashRefresh();
+    }
+  } catch {
+    setConnected(false);
+    if (catalog.length === 0) showOfflineMessage();
+  }
+}
+
+function setConnected(ok) {
+  isConnected = ok;
+  document.getElementById('statusDot').className = 'status-dot ' + (ok ? 'live' : 'offline');
+  document.getElementById('statusText').textContent = ok ? 'live' : 'watcher offline';
+  document.getElementById('connAlert').className = 'conn-alert' + (ok ? '' : ' show');
+}
+
+function flashRefresh() {
+  const el = document.getElementById('rfFlash');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 400);
+}
+
+function showOfflineMessage() {
+  // show empty state with offline message
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDEBAR RENDER
+// ═══════════════════════════════════════════════════════
+const catColors = [
+  '#3b82f6','#6366f1','#a855f7','#ec4899','#f43f5e',
+  '#ef4444','#f97316','#f59e0b','#eab308','#84cc16',
+  '#22c55e','#10b981','#14b8a6','#06b6d4','#0ea5e9',
+  '#3b82f6','#6366f1','#8b5cf6','#a855f7','#d946ef',
+  '#ec4899','#f43f5e','#ef4444','#f97316'
+];
+
+function renderSidebar() {
+  const el = document.getElementById('sidebarScroll');
+  const html = catalog.map((cat, ci) => {
+    const color = catColors[ci % catColors.length];
+    const r = 11;
+    const circ = 2 * Math.PI * r;
+    const dashOffset = circ - (circ * cat.progress / 100);
+
+    const topicsHtml = cat.topics.map(t => {
+      const pct = t.progress;
+      const cls = pct === 100 ? 'written' : pct > 0 ? 'partial' : '';
+      const isActive = activeTopic && activeTopic.path === t.path;
+      return `<div class="topic-item ${cls} ${isActive ? 'active' : ''}"
+        onclick="selectTopic('${t.path}')">
+        <div class="topic-dot"></div>
+        <span class="topic-name">${formatTopicName(t.name)}</span>
+        ${pct > 0 ? `<span class="topic-pct">${pct}%</span>` : ''}
+      </div>`;
+    }).join('');
+
+    const isOpen = activeTopic && cat.topics.some(t => t.path === activeTopic?.path);
+
+    return `<div class="cat-section" id="cat-${ci}">
+      <div class="cat-header ${isOpen ? 'open' : ''}" onclick="toggleCat(${ci})">
+        <div class="cat-ring">
+          <svg viewBox="0 0 28 28">
+            <circle class="ring-bg" cx="14" cy="14" r="${r}"/>
+            <circle class="ring-fill" cx="14" cy="14" r="${r}"
+              stroke="${color}"
+              stroke-dasharray="${circ}"
+              stroke-dashoffset="${dashOffset}"/>
+          </svg>
+          <div class="cat-num">${ci + 1}</div>
+        </div>
+        <div class="cat-info">
+          <span class="cat-name">${cat.name}</span>
+          <span class="cat-count">${cat.topics.length} topics · ${cat.progress}%</span>
+        </div>
+        <span class="cat-chevron">▶</span>
+      </div>
+      <div class="topic-list ${isOpen ? 'open' : ''}" id="topicList-${ci}">
+        ${topicsHtml}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = html;
+}
+
+function toggleCat(ci) {
+  const header = document.querySelector(`#cat-${ci} .cat-header`);
+  const list = document.getElementById(`topicList-${ci}`);
+  header.classList.toggle('open');
+  list.classList.toggle('open');
+}
+
+function formatTopicName(raw) {
+  return raw.replace(/^\d{2}-/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// ═══════════════════════════════════════════════════════
+// TOPIC SELECTION
+// ═══════════════════════════════════════════════════════
+function selectTopic(topicPath) {
+  const [catDir, topicDir] = topicPath.split('/');
+  const cat = catalog.find(c => c.dir === catDir);
+  if (!cat) return;
+  const topic = cat.topics.find(t => t.path === topicPath);
+  if (!topic) return;
+
+  activeTopic = { ...topic, catName: cat.name };
+  activeFile = 'schema.js';
+
+  renderSidebar();
+  renderTopic();
+  closeSearch();
+}
+
+function refreshActiveTopic() {
+  if (!activeTopic) return;
+  const [catDir] = activeTopic.path.split('/');
+  const cat = catalog.find(c => c.dir === catDir);
+  if (!cat) return;
+  const topic = cat.topics.find(t => t.path === activeTopic.path);
+  if (!topic) return;
+  activeTopic = { ...topic, catName: cat.name };
+  renderTopic();
+}
+
+function renderTopic() {
+  const t = activeTopic;
+  if (!t) return;
+
+  // Show panels
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('topicHeader').classList.add('visible');
+  document.getElementById('tabBar').classList.add('visible');
+  document.getElementById('panels').classList.add('visible');
+
+  // Breadcrumb
+  document.getElementById('topicBreadcrumb').innerHTML =
+    `<span>${t.catName}</span><span class="breadcrumb-sep">›</span><span>${formatTopicName(t.name)}</span>`;
+
+  // Title
+  document.getElementById('topicTitle').textContent = formatTopicName(t.name);
+
+  // Progress bar
+  document.getElementById('topicProgressFill').style.width = t.progress + '%';
+
+  // Tab badges
+  const codeBadge = CODE_FILES.some(f => t.files[f]?.written);
+  const explBadge = t.files['README.md']?.written;
+  const setupBadge = t.files['setup.md']?.written;
+  const envBadge = t.files['.env.example']?.written;
+  const theoryBadge = t.files['theory.md']?.written;
+  const previewBadge = t.files['preview.html']?.written;
+  setBadge('code', codeBadge);
+  setBadge('explanation', explBadge);
+  setBadge('setup', setupBadge);
+  setBadge('env', envBadge);
+  setBadge('theory', theoryBadge);
+  setBadge('preview', previewBadge);
+
+  renderCurrentTab();
+}
+
+function setBadge(tab, show) {
+  const el = document.getElementById('badge-' + tab);
+  if (el) el.className = 'tab-badge' + (show ? ' show' : '');
+}
+
+function renderCurrentTab() {
+  if (activeTab === 'code') renderCodePanel();
+  else if (activeTab === 'explanation') renderMdPanel('explanation', 'README.md', '📝 Write your explanation in README.md\n\nExplain it in your own words — this is the most important file!');
+  else if (activeTab === 'setup') renderMdPanel('setup', 'setup.md', '⚙️ Write setup steps in setup.md\n\nInclude: npm install, env vars, how to run, how to test');
+  else if (activeTab === 'env') renderEnvPanel();
+  else if (activeTab === 'theory') renderMdPanel('theory', 'theory.md', '📚 Write theory notes in theory.md\n\nKey concepts, how it works under the hood');
+  else if (activeTab === 'checklist') renderChecklist();
+  else if (activeTab === 'preview') renderPreview();
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+  renderCurrentTab();
+}
+
+// ── CODE PANEL ──
+function renderCodePanel() {
+  const t = activeTopic;
+  const files = CODE_FILES;
+
+  const fileTabsHtml = files.map(f => `
+    <div class="file-tab ${f === activeFile ? 'active' : ''} ${t.files[f]?.written ? 'written' : ''}"
+      onclick="selectFile('${f}')">
+      <span class="dot"></span>${f}
+    </div>`).join('');
+
+  document.getElementById('fileTabs').innerHTML = fileTabsHtml;
+
+  const fileData = t.files[activeFile];
+  const content = fileData?.content || '';
+  const written = fileData?.written || false;
+
+  document.getElementById('codeFilename').textContent = `${t.name}/${activeFile}`;
+  const statusEl = document.getElementById('codeStatus');
+  if (written) {
+    statusEl.className = 'code-view-status written';
+    statusEl.textContent = '✓ written';
+  } else {
+    statusEl.className = 'code-view-status empty';
+    statusEl.textContent = 'empty — write this in VS Code';
+  }
+
+  const pre = document.getElementById('codePre');
+  if (!written || !content.trim()) {
+    pre.className = 'code-pre empty-file';
+    pre.textContent = `→ Open this file in VS Code:\n   backend-mastery/${t.path}/${activeFile}\n\n   Write your code → save → it appears here automatically`;
+  } else {
+    pre.className = 'code-pre';
+    pre.innerHTML = syntaxHighlight(content);
+  }
+}
+
+function selectFile(f) {
+  activeFile = f;
+  renderCodePanel();
+}
+
+function syntaxHighlight(code) {
+  code = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // Comments
+  code = code.replace(/(\/\/[^\n]*)/g, '<span class="token-comment">$1</span>');
+  code = code.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="token-comment">$1</span>');
+  // Strings
+  code = code.replace(/(["'`])((?:\\.|(?!\1)[^\\])*)\1/g, '<span class="token-string">$1$2$1</span>');
+  // Keywords
+  const kws = ['const','let','var','function','async','await','return','if','else','for','while','try','catch','throw','new','class','extends','import','export','default','require','module','from','of','in','typeof','instanceof','true','false','null','undefined'];
+  code = code.replace(new RegExp(`\\b(${kws.join('|')})\\b`, 'g'), '<span class="token-keyword">$1</span>');
+  // Numbers
+  code = code.replace(/\b(\d+\.?\d*)\b/g, '<span class="token-number">$1</span>');
+  return code;
+}
+
+// ── MD PANELS ──
+function renderMdPanel(tab, file, placeholder) {
+  const t = activeTopic;
+  const fileData = t.files[file];
+  const content = fileData?.content || '';
+  const written = fileData?.written || false;
+
+  let mdId;
+  if (tab === 'explanation') mdId = 'mdExplanation';
+  else if (tab === 'setup') mdId = 'mdSetup';
+  else mdId = 'mdTheory';
+
+  const el = document.getElementById(mdId);
+  if (!written || !content.trim()) {
+    el.className = 'md-content empty-md';
+    el.innerHTML = `<div style="font-size:32px;opacity:.2;margin-bottom:8px">📄</div><div>${placeholder}</div>`;
+  } else {
+    el.className = 'md-content';
+    el.innerHTML = renderMarkdown(content);
+  }
+}
+
+function renderMarkdown(md) {
+  let h = md
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/```([\s\S]*?)```/g, (_, c) => `<pre>${c}</pre>`)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '• $1')
+    .replace(/\n/g, '<br>');
+  return h;
+}
+
+// ── ENV PANEL ──
+function renderEnvPanel() {
+  const t = activeTopic;
+  const content = t.files['.env.example']?.content || '';
+  const written = t.files['.env.example']?.written || false;
+
+  const el = document.getElementById('envPre');
+  if (!written || !content.trim()) {
+    el.innerHTML = '<span style="color:var(--muted);font-style:italic">→ Fill in .env.example in VS Code with the environment variables this topic needs</span>';
+  } else {
+    el.innerHTML = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/^(#.*)$/gm, '<span class="env-comment">$1</span>')
+      .replace(/^([A-Z_]+)(=)(.*)$/gm, '<span class="env-key">$1</span><span class="env-eq">$2</span><span class="env-val">$3</span>');
+  }
+}
+
+// ── PREVIEW PANEL ──
+function renderPreview() {
+  const t = activeTopic;
+  const previewData = t.files['preview.html'];
+  const frame = document.getElementById('previewFrame');
+
+  if (!previewData?.written || !previewData?.content?.trim()) {
+    frame.srcdoc = `<!DOCTYPE html><html><head><style>
+      body{background:#0f1117;color:#64748b;font-family:'JetBrains Mono',monospace;
+      display:flex;align-items:center;justify-content:center;min-height:100vh;
+      flex-direction:column;gap:12px;text-align:center;padding:20px;}
+      h2{color:#e2e8f0;font-size:16px;}code{background:#1a1d27;padding:3px 8px;border-radius:4px;color:#3b82f6;}
+    </style></head><body>
+      <div style="font-size:36px;opacity:.2">🖥</div>
+      <h2>Write your preview frontend</h2>
+      <p>Open <code>backend-mastery/${t.path}/preview.html</code> in VS Code</p>
+      <p style="font-size:12px;max-width:400px;line-height:1.6;">Write a simple HTML page that calls your backend API endpoints.<br>It will appear here when you save.</p>
+    </body></html>`;
+  } else {
+    frame.src = `${WATCHER_URL}/preview/${t.path}`;
+  }
+}
+
+function reloadPreview() {
+  // Force reload by clearing and resetting src
+  const frame = document.getElementById('previewFrame');
+  frame.src = '';
+  setTimeout(() => renderPreview(), 100);
+}
+
+
+function getChecklistKey() {
+  return `checklist:${activeTopic.path}`;
+}
+
+function loadChecklist() {
+  try {
+    const saved = localStorage.getItem(getChecklistKey());
+    return saved ? JSON.parse(saved) : new Array(CHECKLIST_ITEMS.length).fill(false);
+  } catch { return new Array(CHECKLIST_ITEMS.length).fill(false); }
+}
+
+function saveChecklist(states) {
+  try { localStorage.setItem(getChecklistKey(), JSON.stringify(states)); } catch {}
+}
+
+function renderChecklist() {
+  const states = loadChecklist();
+  const done = states.filter(Boolean).length;
+  const total = CHECKLIST_ITEMS.length;
+  const pct = Math.round(done / total * 100);
+
+  document.getElementById('clNum').textContent = `${done}/${total}`;
+  document.getElementById('clFill').style.width = pct + '%';
+
+  const html = CHECKLIST_ITEMS.map((item, i) => `
+    <div class="checklist-item ${states[i] ? 'checked' : ''}" onclick="toggleCheck(${i})">
+      <div class="check-box">${states[i] ? '✓' : ''}</div>
+      <div class="check-label">${item}</div>
+    </div>`).join('');
+
+  document.getElementById('checklistWrap').innerHTML = html;
+}
+
+function toggleCheck(i) {
+  const states = loadChecklist();
+  states[i] = !states[i];
+  saveChecklist(states);
+  renderChecklist();
+}
+
+// ═══════════════════════════════════════════════════════
+// GLOBAL STATS
+// ═══════════════════════════════════════════════════════
+function updateGlobalStats() {
+  let totalTopics = 0, totalFiles = 0, writtenFiles = 0;
+  for (const cat of catalog) {
+    totalTopics += cat.topics.length;
+    totalFiles += cat.totalFiles;
+    writtenFiles += cat.writtenFiles;
+  }
+  const pct = totalFiles > 0 ? Math.round(writtenFiles / totalFiles * 100) : 0;
+  document.getElementById('statTopics').textContent = totalTopics;
+  document.getElementById('statWritten').textContent = writtenFiles;
+  document.getElementById('statPct').textContent = pct + '%';
+}
+
+// ═══════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════
+document.getElementById('searchInput').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q) { closeSearch(); return; }
+
+  const results = [];
+  for (const cat of catalog) {
+    for (const topic of cat.topics) {
+      const name = formatTopicName(topic.name).toLowerCase();
+      if (name.includes(q) || topic.name.includes(q)) {
+        results.push({ cat, topic });
+        if (results.length >= 12) break;
+      }
+    }
+    if (results.length >= 12) break;
+  }
+
+  const el = document.getElementById('searchResults');
+  if (!results.length) { el.innerHTML = '<div class="search-result-item" style="color:var(--muted)">No results</div>'; el.classList.add('open'); return; }
+
+  el.innerHTML = results.map(({ cat, topic }) => {
+    const name = formatTopicName(topic.name);
+    const hi = name.replace(new RegExp(q, 'gi'), m => `<span class="sr-highlight">${m}</span>`);
+    return `<div class="search-result-item" onclick="selectTopic('${topic.path}')">
+      <div class="sr-cat">${cat.name}</div>
+      <div class="sr-topic">${hi}</div>
+    </div>`;
+  }).join('');
+  el.classList.add('open');
+});
+
+function closeSearch() {
+  document.getElementById('searchResults').classList.remove('open');
+  document.getElementById('searchInput').value = '';
+}
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('searchWrap').contains(e.target)) closeSearch();
+});
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+  if (e.key === 'Escape') closeSearch();
+});
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+fetchCatalog();
+pollInterval = setInterval(fetchCatalog, POLL_MS);
+</script>
+</body>
+</html>

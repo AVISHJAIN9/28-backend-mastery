@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Revisions Platform — Backend Mastery 1-30</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0d;
+    --bg2: #111318;
+    --bg3: #181c22;
+    --bg4: #1e232c;
+    --border: #252b35;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --accent: #3b82f6;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; width: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .title-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent), #6366f1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    flex: 1;
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Syne', sans-serif;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .stats {
+    display: flex;
+    gap: 20px;
+    margin-left: auto;
+  }
+
+  .stat {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-num {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* MAIN CONTAINER */
+  .container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* MODULES BROWSER (LEFT SIDEBAR) */
+  .modules-browser {
+    width: 320px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .browser-search {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    outline: none;
+  }
+  .search-input:focus { border-color: var(--accent); }
+
+  .modules-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+
+  .module-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all .2s;
+    border-bottom: 1px solid transparent;
+  }
+  .module-item:hover { background: var(--bg3); }
+  .module-item.active { background: var(--bg3); border-left-color: var(--accent); }
+
+  .module-name {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .module-count {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* CONTENT AREA */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* TAB PANELS */
+  .tab-content {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+    flex-direction: column;
+  }
+  .tab-content.active { display: flex; }
+
+  /* GRID VIEW */
+  .grid-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    align-content: start;
+  }
+
+  .module-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .module-card:hover { border-color: var(--accent); background: var(--bg3); }
+
+  .card-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 14px;
+    flex: 1;
+  }
+
+  .card-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--accent);
+    color: white;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .card-stats {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #6366f1);
+    transition: width .3s;
+  }
+
+  .topics-preview {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .topic-item {
+    padding: 3px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* FILE BROWSER VIEW */
+  .file-browser {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .files-container {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .file-list {
+    width: 280px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .file-list-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background .2s;
+    font-size: 12px;
+  }
+  .file-list-item:last-child { border-bottom: none; }
+  .file-list-item:hover { background: var(--bg3); }
+  .file-list-item.active { background: var(--accent); color: white; }
+
+  .file-icon {
+    font-size: 14px;
+  }
+
+  .file-preview {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .file-preview-header {
+    padding: 12px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .file-preview-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .file-preview-status {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .file-preview-status.written {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--green);
+  }
+  .file-preview-status.empty {
+    background: rgba(100, 116, 139, 0.15);
+    color: var(--muted);
+  }
+
+  .file-preview-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: var(--text);
+  }
+
+  .file-preview-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ERROR VIEWER */
+  .errors-container {
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .error-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .error-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .error-msg {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .error-type {
+    display: inline-block;
+    padding: 2px 6px;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--red);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .no-errors {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--green);
+    font-size: 16px;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="title">
+    <div class="title-icon">📚</div>
+    <span>Backend Mastery</span>
+    <span style="color: var(--muted); font-weight: 400;">Modules 1-30</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchView('overview')">📊 Overview</button>
+    <button class="tab-btn" onclick="switchView('browser')">📂 File Browser</button>
+    <button class="tab-btn" onclick="switchView('errors')">⚠️ Error Scan</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num" id="totalModules">—</div>
+      <div class="stat-label">Modules</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="totalTopics">—</div>
+      <div class="stat-label">Topics</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="totalFiles">—</div>
+      <div class="stat-label">Files</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="filesWritten">—</div>
+      <div class="stat-label">Written</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="totalErrors">—</div>
+      <div class="stat-label">Errors</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <!-- MODULES SIDEBAR (visible in browser view) -->
+  <div class="modules-browser" id="modulesBrowser" style="display: none;">
+    <div class="browser-search">
+      <input type="text" class="search-input" id="moduleSearch" placeholder="Search modules...">
+    </div>
+    <div class="modules-list" id="modulesList"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- OVERVIEW TAB -->
+    <div class="tab-content active" id="overview">
+      <div class="grid-wrap" id="gridContainer"></div>
+    </div>
+
+    <!-- FILE BROWSER TAB -->
+    <div class="tab-content" id="browser">
+      <div class="file-browser">
+        <div class="breadcrumb" id="browserBreadcrumb"></div>
+        <div class="files-container">
+          <div class="file-list" id="fileList"></div>
+          <div class="file-preview">
+            <div class="file-preview-header">
+              <div class="file-preview-name" id="previewName">—</div>
+              <div class="file-preview-status" id="previewStatus">empty</div>
+            </div>
+            <div class="file-preview-content" id="previewContent" class="file-preview-empty">Select a file to view</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERRORS TAB -->
+    <div class="tab-content" id="errors">
+      <div class="errors-container" id="errorsContainer"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:4444';
+const POLL_MS = 3000;
+
+let catalog = [];
+let allErrors = {};
+let selectedModule = null;
+
+// ═══════════════════════════════════════════════════════
+// FETCH & RENDER
+// ═══════════════════════════════════════════════════════
+async function loadCatalog() {
+  try {
+    const res = await fetch(`${API}/catalog`);
+    if (!res.ok) throw new Error('Failed to fetch catalog');
+    catalog = await res.json();
+    renderOverview();
+    renderModulesList();
+    updateStats();
+  } catch (e) {
+    console.error('Catalog error:', e);
+    setTimeout(loadCatalog, 5000);
+  }
+}
+
+async function loadTopicErrors(modulePath) {
+  try {
+    const res = await fetch(`${API}/topic-errors?path=${encodeURIComponent(modulePath)}`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.error('Error fetching topic errors:', e);
+    return [];
+  }
+}
+
+async function loadTopicFiles(modulePath) {
+  try {
+    const res = await fetch(`${API}/topic-files?path=${encodeURIComponent(modulePath)}`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.error('Error fetching topic files:', e);
+    return [];
+  }
+}
+
+function updateStats() {
+  const stats = {
+    modules: catalog.length,
+    topics: catalog.reduce((s, c) => s + c.topicCount, 0),
+    totalFiles: catalog.reduce((s, c) => s + c.totalFiles, 0),
+    written: catalog.reduce((s, c) => s + c.writtenFiles, 0),
+    errors: catalog.reduce((s, c) => s + c.errorCount, 0)
+  };
+
+  document.getElementById('totalModules').textContent = stats.modules;
+  document.getElementById('totalTopics').textContent = stats.topics;
+  document.getElementById('totalFiles').textContent = stats.totalFiles;
+  document.getElementById('filesWritten').textContent = stats.written;
+  document.getElementById('totalErrors').textContent = stats.errors;
+}
+
+function renderOverview() {
+  const grid = document.getElementById('gridContainer');
+  grid.innerHTML = '';
+
+  catalog.forEach(module => {
+    const pct = module.totalFiles > 0 ? Math.round((module.writtenFiles / module.totalFiles) * 100) : 0;
+    const hasErrors = module.errorCount > 0;
+
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.onclick = () => selectModule(module.dir);
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-title">${module.name}</div>
+        <div class="card-badge">${module.topicCount}</div>
+      </div>
+      <div class="card-stats">
+        <span>${module.writtenFiles}/${module.totalFiles} files</span>
+        ${hasErrors ? `<span style="color: var(--red);">⚠️ ${module.errorCount}</span>` : ''}
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${pct}%"></div>
+      </div>
+      <div class="topics-preview">
+        ${module.topics.slice(0, 3).map(t => `<div class="topic-item">• ${t.name}</div>`).join('')}
+        ${module.topics.length > 3 ? `<div class="topic-item" style="color: var(--accent);">+${module.topics.length - 3} more</div>` : ''}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderModulesList() {
+  const list = document.getElementById('modulesList');
+  list.innerHTML = '';
+
+  catalog.forEach(module => {
+    const item = document.createElement('div');
+    item.className = 'module-item';
+    item.onclick = () => selectModule(module.dir);
+
+    item.innerHTML = `
+      <div class="module-name">${module.name}</div>
+      <div class="module-count">${module.topicCount} topics</div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function selectModule(moduleDir) {
+  selectedModule = moduleDir;
+  const moduleObj = catalog.find(m => m.dir === moduleDir);
+  if (!moduleObj) return;
+
+  // Update active state
+  document.querySelectorAll('.module-item').forEach(el => el.classList.remove('active'));
+  document.querySelector(`[onclick="selectModule('${moduleDir}')"]`)?.classList.add('active');
+
+  // Render files
+  renderFileBrowser(moduleDir, moduleObj);
+}
+
+async function renderFileBrowser(moduleDir, moduleObj) {
+  const breadcrumb = document.getElementById('browserBreadcrumb');
+  breadcrumb.textContent = `${moduleDir} / ${moduleObj.topicCount} topics`;
+
+  const fileList = document.getElementById('fileList');
+  fileList.innerHTML = '';
+
+  // Add all files from all topics
+  let allFiles = [];
+  for (const topic of moduleObj.topics) {
+    const files = await loadTopicFiles(`${moduleDir}/${topic.name}`);
+    files.forEach(f => {
+      allFiles.push({
+        name: f.name,
+        topic: topic.name,
+        path: `${moduleDir}/${topic.name}/${f.name}`,
+        ...f
+      });
+    });
+  }
+
+  allFiles.forEach((file, idx) => {
+    const item = document.createElement('div');
+    item.className = 'file-list-item';
+    if (idx === 0) item.classList.add('active');
+
+    item.innerHTML = `
+      <span class="file-icon">${file.isDir ? '📁' : '📄'}</span>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
+        <div style="font-size: 10px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.topic}</div>
+      </div>
+    `;
+
+    item.onclick = () => {
+      document.querySelectorAll('.file-list-item').forEach(e => e.classList.remove('active'));
+      item.classList.add('active');
+      renderFilePreview(file);
+    };
+
+    fileList.appendChild(item);
+  });
+
+  // Show first file
+  if (allFiles.length > 0) {
+    renderFilePreview(allFiles[0]);
+  }
+}
+
+async function renderFilePreview(file) {
+  const name = document.getElementById('previewName');
+  const status = document.getElementById('previewStatus');
+  const content = document.getElementById('previewContent');
+
+  name.textContent = file.name;
+
+  if (file.isDir) {
+    status.textContent = 'folder';
+    status.className = 'file-preview-status';
+    content.textContent = '(Directory)';
+    content.className = 'file-preview-content file-preview-empty';
+    return;
+  }
+
+  if (!file.content) {
+    status.textContent = 'empty';
+    status.className = 'file-preview-status empty';
+    content.textContent = '(File is empty)';
+    content.className = 'file-preview-content file-preview-empty';
+    return;
+  }
+
+  status.textContent = 'written';
+  status.className = 'file-preview-status written';
+  content.textContent = file.content;
+  content.className = 'file-preview-content';
+
+  // Show errors if any
+  if (file.errors && file.errors.length > 0) {
+    const errMsg = file.errors.map(e => `[${e.type}] ${e.msg}`).join('\n');
+    content.textContent += '\n\n⚠️ ERRORS:\n' + errMsg;
+  }
+}
+
+async function renderErrors() {
+  const container = document.getElementById('errorsContainer');
+  container.innerHTML = '';
+
+  let hasAnyErrors = false;
+
+  for (const module of catalog) {
+    for (const topic of module.topics) {
+      const errors = await loadTopicErrors(`${module.dir}/${topic.name}`);
+      if (errors.length === 0) continue;
+
+      hasAnyErrors = true;
+      for (const errGroup of errors) {
+        const div = document.createElement('div');
+        div.className = 'error-item';
+        div.innerHTML = `
+          <div class="error-file" onclick="selectAndViewError('${module.dir}/${topic.name}/${errGroup.file}')">
+            ${module.dir} / ${topic.name} / ${errGroup.file}
+          </div>
+          ${errGroup.errors.map(e => `
+            <div style="margin-bottom: 6px;">
+              <div class="error-msg">${e.msg}</div>
+              <span class="error-type">${e.type}</span>
+            </div>
+          `).join('')}
+        `;
+        container.appendChild(div);
+      }
+    }
+  }
+
+  if (!hasAnyErrors) {
+    container.innerHTML = '<div class="no-errors">✅ No errors detected!</div>';
+  }
+}
+
+function selectAndViewError(filePath) {
+  switchView('browser');
+  // TODO: navigate to specific file
+}
+
+// ═══════════════════════════════════════════════════════
+// UI INTERACTIONS
+// ═══════════════════════════════════════════════════════
+function switchView(view) {
+  const views = ['overview', 'browser', 'errors'];
+  const tabBtns = document.querySelectorAll('.tab-btn');
+
+  views.forEach(v => {
+    document.getElementById(v).classList.remove('active');
+  });
+
+  tabBtns.forEach(btn => btn.classList.remove('active'));
+
+  document.getElementById(view).classList.add('active');
+  event.target?.classList.add('active');
+
+  document.getElementById('modulesBrowser').style.display = view === 'browser' ? 'flex' : 'none';
+
+  if (view === 'errors') {
+    renderErrors();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// POLLING
+// ═══════════════════════════════════════════════════════
+setInterval(() => {
+  loadCatalog();
+}, POLL_MS);
+
+// Initial load
+loadCatalog();
+</script>
+</body>
+</html>
