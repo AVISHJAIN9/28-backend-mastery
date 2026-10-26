@@ -1,0 +1,32 @@
+import{_ as a,o as s,c as e,a2 as t}from"./chunks/framework.Cso1fFul.js";const u=JSON.parse('{"title":"Project Map: 34-backend-mastery","description":"","frontmatter":{},"headers":[],"relativePath":"00-project-map.md","filePath":"00-project-map.md"}'),i={name:"00-project-map.md"};function p(o,n,c,r,l,d){return s(),e("div",null,[...n[0]||(n[0]=[t(`<h1 id="project-map-34-backend-mastery" tabindex="-1">Project Map: 34-backend-mastery <a class="header-anchor" href="#project-map-34-backend-mastery" aria-label="Permalink to &quot;Project Map: 34-backend-mastery&quot;">​</a></h1><h2 id="folder-structure" tabindex="-1">Folder Structure <a class="header-anchor" href="#folder-structure" aria-label="Permalink to &quot;Folder Structure&quot;">​</a></h2><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>34-backend-mastery/</span></span>
+<span class="line"><span>├── docs/                               # Comprehensive VitePress Documentation Suite</span></span>
+<span class="line"><span>└── backend-mastery/                    # 30 Production Backend Architecture Modules</span></span>
+<span class="line"><span>    ├── 01-authentication/              # JWT, OAuth2, Sessions, RBAC, MFA</span></span>
+<span class="line"><span>    ├── 02-controllers-api/             # Clean controllers, REST contracts, pagination</span></span>
+<span class="line"><span>    ├── 03-middleware/                  # Error handlers, rate limiting, request tracing</span></span>
+<span class="line"><span>    ├── 04-models-database/             # Mongoose schemas, indexes, aggregation, ACID</span></span>
+<span class="line"><span>    ├── 05-realtime-communication/      # Socket.IO, WebSockets, SSE, presence</span></span>
+<span class="line"><span>    ├── 06-nodejs-internals/            # Event loop, libuv, streams, buffers, workers</span></span>
+<span class="line"><span>    ├── 07-security/                    # OWASP Top 10, CORS, Helmet, sanitization</span></span>
+<span class="line"><span>    ├── 08-caching/                     # Redis cache-aside, write-through, invalidation</span></span>
+<span class="line"><span>    ├── 09-jobs-queues/                 # BullMQ, background workers, DLQ, cron</span></span>
+<span class="line"><span>    ├── 10-observability/               # Pino structured logging, Prometheus, tracing</span></span>
+<span class="line"><span>    ├── 11-testing/                     # Jest, Supertest, unit &amp; integration tests</span></span>
+<span class="line"><span>    ├── 12-devops-cicd/                 # Docker, GitHub Actions, rolling deploys</span></span>
+<span class="line"><span>    ├── 13-typescript-deep/             # Generics, utility types, strict interfaces</span></span>
+<span class="line"><span>    ├── 14-design-patterns/             # Factory, Singleton, Observer, Strategy</span></span>
+<span class="line"><span>    ├── 15-algorithms-dsa/              # Rate limit algorithms, bloom filters, LRU</span></span>
+<span class="line"><span>    ├── 16-network-http/                # HTTP/1.1 vs HTTP/2 vs HTTP/3, TLS handshakes</span></span>
+<span class="line"><span>    ├── 17-linux-os/                    # Signals, file descriptors, process management</span></span>
+<span class="line"><span>    ├── 18-cryptography/                # AES-GCM, RSA, HMAC, bcrypt, PBKDF2</span></span>
+<span class="line"><span>    ├── 19-payments-fintech/            # Double-entry ledger, Stripe webhooks, idempotency</span></span>
+<span class="line"><span>    ├── 20-code-quality-git/            # Conventional commits, ESLint, Prettier</span></span>
+<span class="line"><span>    ├── 21-services-integrations/       # External API wrappers, circuit breakers</span></span>
+<span class="line"><span>    ├── 22-compliance-privacy/          # GDPR, data retention, PII masking</span></span>
+<span class="line"><span>    ├── 23-i18n/                        # Localization, timezone handling, UTC normalization</span></span>
+<span class="line"><span>    ├── 24-architecture-patterns/       # Hexagonal, Clean, Event-Driven, Microservices</span></span>
+<span class="line"><span>    ├── 25-file-media-storage/          # Multer, S3 pre-signed URLs, streaming uploads</span></span>
+<span class="line"><span>    ├── 26-notifications-communication/ # Omnichannel dispatch, SendGrid, Twilio</span></span>
+<span class="line"><span>    ├── 28-real-world-patterns/         # Outbox pattern, Saga pattern, idempotency keys</span></span>
+<span class="line"><span>    ├── 29-ai-ml-backend/               # Vector embeddings, LLM streaming, Python sidecars</span></span>
+<span class="line"><span>    └── 30-saas-multitenancy/           # Tenant isolation, dynamic connection pooling</span></span></code></pre></div><h2 id="tech-stack-dependencies" tabindex="-1">Tech Stack &amp; Dependencies <a class="header-anchor" href="#tech-stack-dependencies" aria-label="Permalink to &quot;Tech Stack &amp; Dependencies&quot;">​</a></h2><ul><li><code>node &gt;= 20.0.0</code>: Modern LTS runtime.</li><li><code>express</code>: Core routing and middleware framework.</li><li><code>mongoose</code>: MongoDB object modeling.</li><li><code>ioredis</code>: Redis client for caching and pub/sub.</li><li><code>jsonwebtoken</code>: Stateless authentication.</li><li><code>pino</code>: Ultra-low overhead structured JSON logging.</li></ul>`,5)])])}const h=a(i,[["render",p]]);export{u as __pageData,h as default};
